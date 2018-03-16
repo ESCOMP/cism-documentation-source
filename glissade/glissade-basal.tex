@@ -1,0 +1,147 @@
+\section{Basal physics}
+\label{sc:glissade-basal-physics}
+
+Glissade assumes a basal friction law of the form 
+
+\begin{equation}
+%  \label{gliss.eq.beta_tau}   % already labeled in a previous section
+  \mathbf{\tau_b} = \beta \mathbf{u_b},
+\end{equation}
+%
+where $\mathbf{u_b}$ is the basal velocity, $\mathbf{\tau_b}$ is the basal shear stress, and $\beta > 0$. 
+If $\beta$ were independent of velocity, then \eqref{gliss.eq.beta_tau}
+would be a simple linear sliding law.
+Allowing $\beta$ to depend on velocity, however, allows more complex 
+and physically realistic sliding laws.
+
+The sliding law used by Glissade is determined by the value of \texttt{which\_ho\_babc}.
+The following options are supported:
+
+\begin{itemize}
+
+\item Spatially uniform $\beta$.
+
+\item Very slow sliding, enforced by setting $\beta$ to a large value of $10^{10}~\mathrm{Pa~yr/m}$.  
+This is a special case of spatially uniform $\beta$ and is the default.
+
+\item No sliding, enforced by a Dirichlet boundary condition $\mathbf{u_b} = 0$
+during finite-element assembly.
+
+\item A 2D $\beta$ field specified from an external file. Typically, $\beta$ is chosen
+at each vertex to optimize the fit to a surface velocity data set.
+
+\item $\beta$ is set to a large value where the bed is frozen ($T_b < T_{pmp}$) and a lower value
+where the bed is thawed ($T_b = T_{pmp}$).
+
+\item Power-law sliding, based on the classic sliding relation of \citet{Weertman1957}.
+Basal velocity is given by
+
+\begin{equation}
+  \label{gliss.eq.power_law_sliding}
+  \mathbf{u_b} = k \mathbf{\tau_b^p} N^{-q},
+\end{equation}
+
+\noindent
+where $N$ is the effective pressure (the difference between the ice overburden pressure and
+the basal water pressure) and $k$ is an empirical constant.
+This can be rearranged to give
+
+\begin{equation}
+  \label{gliss.eq.power_law_sliding2}
+  \mathbf{\tau_b} = k^{-1/p} N^{q/p} \mathbf{u_b}^{1/p}, 
+\end{equation}
+
+\noindent
+which determines the form of $\beta$.
+Following \citet{Cuffey2010}, the default exponents are $p = 3$ and $q = 1$.
+
+\item Coulomb friction, as described by \citet{Schoof2005}, with notation
+and default values from \citet{Pimentel2010a}. The form of the sliding law is
+
+\begin{equation}
+  \label{gliss.eq.power_law_schoof}
+        {{\tau }_{\mathbf{b}}} = C{{\left| \mathbf{u} \right|}^{\frac{1}{n}-1}}\mathbf{u}{{\left( \frac{{{N}^{n}}}{\kappa \left| \mathbf{u} \right|+{{N}^{n}}} \right)}^{\frac{1}{n}}}
+\end{equation}
+
+\noindent
+where $C$ is a dimensionless constant, $\kappa ={{m}_{\max }}/({{\lambda }_{\max }}{{A}_{b}})$,
+$m_{\max}$ is the maximum bed obstacle slope, $\lambda_{\max}$ is the wavelength of bedrock bumps,
+and $A_b$ is a basal flow-law parameter.
+The default values are $C = 0.42$, $m_{\max} = 0.5$, $\lambda_{\max} = 2.0~\mathrm{m}$,
+and $A_b = 10^{-16}~\mathrm{Pa}^{-n}~\mathrm{m}^{-1}$.
+
+Eq. \eqref{gliss.eq.power_law_schoof} has two asymptotic behaviors.
+In the interior, where the ice is thick and slow-moving, 
+$\kappa \left| \mathbf{u} \right|\ll {{N}^{n}}$ and the basal friction
+is independent of $N$:
+
+\begin{equation}
+  {{\tau }_{b}}\approx C{{\left| \mathbf{u} \right|}^{\frac{1}{n}-1}} \mathbf{u},
+\end{equation}
+
+\noindent
+In the Coulomb-friction limit, where the ice is thin and fast-moving, 
+$\kappa \left| \mathbf{u} \right|\gg {{N}^{n}}$, giving 
+
+\begin{equation}
+  {{\tau }_{b}}\approx \frac{C}{{{\kappa }^{\frac{1}{n}}}}N\frac{\mathbf{u}}{\left| \mathbf{u} \right|}.
+\end{equation}
+
+\item Pseudo-plastic sliding, as described by \citet{Aschwanden2013} and implemented in the
+Parallel Ice Sheet Model (PISM). The basal friction law is
+
+\begin{equation}
+  {{\tau }_{\mathbf{b}}} = -{{\tau }_{c}}\frac{{{\mathbf{u}}_{\mathbf{b}}}}{{{\left| {{\mathbf{u}}_{\mathbf{b}}} \right|}^{1-q}}u_{0}^{q}},
+\end{equation}
+
+\noindent
+where $\tau_c$ is the yield stress, $q$ is a pseudo-plastic exponent (default = 0.5), 
+and $u_0$ is a threshold speed (default = 100~m/yr).
+This law incorporates linear ($q = 1$), plastic ($q = 0$) and power-law ($0 < q < 1$) behavior in
+a single expression.
+The yield stress is proportional to effective pressure:
+
+\begin{equation}
+  \tau_c = \tan (\phi) N,
+\end{equation}
+
+\noindent
+where $\phi$ is a friction angle that can vary with bed elevation.
+Following \citet{Aschwanden2016}, the default is to set $\phi = 5^\circ$ at elevations
+more than 700 m below sea level and $\phi = 40^\circ$ at elevations more than 700 m above
+sea level, with a linear ramp in between.
+
+\end{itemize}
+
+The power-law, Coulomb-friction and pseudo-plastic sliding laws 
+give lower friction and faster sliding as the effective pressure $N$ decreases 
+from the overburden pressure to lower values.  
+CISM offers several options for computing $N$ at the bed:
+
+\begin{itemize}
+
+\item $N = \rho_i g H$, the full overburden pressure. That is, the water pressure $p_w = 0$
+at the bed.
+
+\item $N$ is reduced as the basal temperature approaches the pressure melting point, 
+reaching a small fraction of overburden pressure (typically $\delta =0.02$) when $T = T_{pmp}$.
+
+\item $N$ is reduced as the basal water depth increases, reaching a small fraction of overburden
+pressure when the water depth exceeds a prescribed threshold.
+(This option is of limited use, however, since CISM
+does not yet have a realistic basal hydrology model.)
+
+\item Following \citet{Leguy2014}, $N$ is reduced where the bed is below sea level, to account
+for partial or full connectivity of the basal water system to the ocean.
+The effective pressure is given by
+
+\begin{equation}
+  N = {{\rho }_{i}}gH{{\left( 1-\frac{{{H}_{f}}}{H} \right)}^{p}},
+\end{equation}
+
+\noindent
+where ${{H}_{f}} = \max \left( 0,\frac{{{\rho }_{w}}}{{{\rho }_{i}}}b \right)$
+is the flotation thickness, $b$ is the depth of the bed, and $0 \le p \le 1$. 
+For $p = 0$ there is no connectivity and $N$ is the full overburden pressure.
+For $p = 1$ there is full connectivity, and the basal water pressure is equal to the ocean pressure at the same depth.
+\end{itemize}

@@ -17,7 +17,8 @@ Glissade numerics, however, differ substantially from Glide numerics:
 Glide is limited to the shallow-ice approximation, whereas Glissade can solve several Stokes
 approximations, as described in Section \ref{sc:glissade-velocity}.
 These include a 3D first-order Blatter-Pattyn solver (the most accurate and complex scheme)
-as well as simpler shallow-ice, shallow-shelf, and ``L1L2'' solvers.
+as well as simpler solvers for the shallow-ice approximation (SIA), shallow-shelf approximation (SSA),
+and a vertically integrated higher-order approximation.
 Unlike Glide, which computes the velocity using finite-difference techniques,
 Glissade uses a more robust and flexible finite-element method.
 
@@ -29,7 +30,7 @@ The vertical solver, described in Section \ref{sc:glissade-temperature}, is loca
 each ice column calculation is independent of other column calculations.
 
 \item \textit{Mass and tracer transport:}
-Glide solves a diffusion equation for tranport of mass (i.e., thickness); this equation incorporates the local shallow-ice
+Glide solves a diffusion equation for tranport of mass (i.e., ice thickness); this equation incorporates the local shallow-ice
 velocities. Since Glissade solves for higher-order flow that may have a large advective (as oppposed to diffusive)
 component, a different approach is needed.  Glissade has two mass- and energy-conserving transport options, 
 described in Section \ref{sc:glissade-transport}:
@@ -218,6 +219,3 @@ Glissade numerics are described in detail below.
 %If you would like to read more about the inner workings of GLIMMER, its
 %documentation is available at the class website. This is not necessary
 %for the present lab exercise.
-
-
-

@@ -36,7 +36,7 @@ In Glide, $T$ is located at each of $nz$ vertical levels.
 In Glissade, internal temperatures are located at the midpoints of the $nz-1$ layers.
 Temperature is also defined at the upper and lower ice surface, giving a total
 of $nz+1$ temperature points in each column.  The upper surface temperature is denoted
-by $T_0$ and the lower surface temperature by $T_{nz}.$
+by $T_0$ and the lower surface temperature by $T_{nz}$.
 
 This convention makes it fairly straightforward
 to advect temperature conservatively.  The total internal energy in a column 
@@ -144,8 +144,8 @@ since the higher-order velocity solver computes $\eta$ during matrix assembly
 and diagnoses $\tau_e$ from $\eta$ and $\dot{\varepsilon}_{ij}$ at the end of the calculation.
 
 \subsection{Boundary conditions}
-The temperature $T_0$ at the upper boundary is set to the surface air temperature $T_{\mathrm{air}}$.
-(In coupled climate applications, $T_0$ may be passed in by the climate model.)
+The temperature $T_0$ at the upper boundary is set to $\min(T_\mathrm{air},0)$, 
+where the surface air temperature $T_{\mathrm{air}}$ is usually specified from data or passed from a climate model.
 The diffusive heat flux at the upper boundary (defined as positive up) is
 
 \begin{equation}
@@ -180,7 +180,7 @@ where $\mathbf{\tau_b}$ and $\mathbf{u_b}$ are 2D vectors of basal shear stress 
 respectively. With a friction law of the form \eqref{gliss.eq.beta_tau}, this becomes
 
 \begin{equation}
-  F_f = \beta \sqrt{u_b^2 + v_b^2}.
+  F_f = \beta (u_b^2 + v_b^2).
 \end{equation}
 
 If the basal temperature $T_{nz} < T_{\mathrm{pmp}}$ 
@@ -204,14 +204,14 @@ lower surface temperature is fixed and the net flux is used to melt or freeze ic
  
 \noindent
 where $M_b$ is the melt rate and $L$ is the latent heat of melting.
-Melting generates basal water, which may either stay in place or flow downstream
-(possibly replaced by water from upstream), depending on the
-parameterization chosen in the config file (\texttt{basal\_water}; see \ref{ug.sec.config}).
+Melting generates basal water, which may either stay in place, flow downstream
+(possibly replaced by water from upstream), or simply disappear from the system, 
+depending on the parameterization chosen in the config file (\texttt{basal\_water}; see \ref{ug.sec.config}).
 We hold $T_{nz} = T_{\mathrm{pmp}}$ as long as basal water is present.
 
-For floating ice the basal boundary condition is simpler; $T_{nz}$ is simply
-set to the freezing temperature $T_f$ of seawater. Optionally, a melt rate could also
-be prescribed at the lower surface, but this is not currently implemented in CISM.
+For floating ice the basal boundary condition is simpler; $T_{nz}$ is simply 
+set to the freezing temperature $T_f$ of seawater. Optionally, a melt rate can be 
+prescribed at the lower surface, as in the MISOMIP experiments \citep{AsayDavis2016}.
 
 \subsection{Vertical temperature solution}
 
@@ -271,15 +271,17 @@ If so, we set $T_k = T_{\mathrm{pmp}}$ and use the extra energy to melt ice inte
 This melt is assumed (not very realistically) to drain immediately to the bed.
 
 If \eqref{gliss.eq.basal_melt} applies, we compute $M_b$ and adjust the basal water depth.
-When the basal water goes to zero, $T_{nz}$ is set to a value slightly below $T_{\mathrm{pmp}}$
-so that the flux boundary condition will apply during the next time step.
+When the basal water goes to zero, $T_{nz}$ is set to the temperature of the lowest layer 
+(below $T_{\mathrm{pmp}}$), so that the flux boundary condition will apply during the next time step.
 
 \subsection{Enthalpy model}
 
-An alternative vertical temperature solver based on enthalpy is under development.
-In this scheme, water that melts internally can be retained in the ice
-instead of draining instantly to the bed. The retained water reduces the ice
-viscosity compared to that of pure ice. Although CISM includes source code
-for an enthalpy model, the model is not yet scientifically supported.
+CISM includes an alternative vertical temperature solver based on enthalpy. 
+%TODO - Add Aschwanden ref. 
+In this scheme, water that melts internally can be retained in the ice instead 
+of draining instantly to the bed. The retained water reduces the ice viscosity 
+compared to that of pure ice. Since this scheme has not yet been scientifically validated, 
+we defer discussion for a future version of the documentation.
+
 
 

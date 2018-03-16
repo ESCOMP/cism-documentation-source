@@ -49,17 +49,15 @@ The IR scheme was originally implemented in the Los Alamos sea ice model, CICE,
 and has been adapted for CISM. It is fairly complex and is described in
 detail in Section~\ref{sc:incremental_remapping}.
 
-Following horizontal transport, the mass balance is applied at each surface.
-Ice is added to or removed from the top surface depending on the sign of $B_b$,
-and similarly is removed from or added to the basal layer based on the sign of $M_b$.
-Any energy that is available for melt after an ice
+After horizontal transport, the mass balance is applied at the top
+and bottom ice surfaces.  Any energy that is available for melt after an ice
 column has entirely melted is discarded, but in coupled applications
 could be returned to the climate model if needed to conserve energy.
 
 After the transport scheme and mass-balance update have been applied, 
 the new layer thicknesses generally do not have the desired spacing in $\sigma$ coordinates.
-A vertical remapping scheme is used to move ice thickness (and associated
-tracers) between layers to restore $\sigma$ layers in a way that conserves mass and energy. 
+A vertical remapping scheme is used to transfer ice volume, internal energy,
+and other conserved quantities between layers to restore $\sigma$ layers in a way that conserves mass and energy. 
 This scheme computes overlaps between the new layers and the target
 $\sigma$ layers.  If, for example, part of new layer $k$ overlaps with target layer $k+1$,
 the mass and internal energy are computed for the overlap region, with the assumption 
@@ -116,12 +114,12 @@ The remapping algorithm can be summarized as follows:
 \item Given mean values of the ice thickness and tracer fields in each
       grid cell, construct linear approximations of these fields.
       Limit the field gradients to preserve monotonicity.
-\item Given ice velocities at grid cell corners, identify departure
+\item Given ice velocities at grid cell vertices, identify departure
       regions for the fluxes across each cell edge.  Divide these
       departure regions into triangles and compute the coordinates
       of the triangle vertices.
-\item Integrate the area and tracer fields over the departure triangles to obtain
-      the area, volume, and energy transported across each cell edge.
+\item Integrate the thickness and tracer fields over the departure triangles to obtain
+      the mass and energy transported across each cell edge.
 \item Given these transports, update the state variables.
 \end{enumerate}
 These steps are carried out for each of $nz-1$ ice layers, as described below.
@@ -488,7 +486,10 @@ advective CFL condition \eqref{eq:CFL}.
 Furthermore, for ice flux parallel to $\nabla s$, ice thickness evolution is diffusive,
 giving rise to an additional diffusive CFL condition \citep{Bueler:2009ee}:
 \begin{equation}
-    \frac{\max D \Delta t} { {\Delta x}^\frac{1}{2}} \leq 2 
+%WHL - Replaced the original equation with the equation given in BB 2009
+%      I think the implementation in the code follows BB 2009 and is correct.
+%  \frac{\max D \Delta t} { {\Delta x}^\frac{1}{2}} \leq 2 
+  (\max D) \Delta t \leq 0.5 {\Delta x}^2 
 \end{equation}
 Flow governed by the shallow-ice approximation is always subject to this diffusive CFL,
 but some component of higher-order flow may not be because the ice

@@ -1,0 +1,65 @@
+
+\section{Calving}
+\label{sc:glissade-calving}
+
+Glide includes several simple schemes for iceberg calving.
+Three of these schemes are supported in Glissade:
+
+\begin{itemize}
+\item Calve all floating ice.
+\item Calve ice where the current bedrock lies below a certain elevation.
+\item Calve ice where the relaxed bedrock (i.e., the bedrock toward which
+a viscous asthenosphere is relaxing) lies below a certain elevation.
+\end{itemize}
+
+In addition, there is a more complex scheme to calve floating ice thinner than a user-defined threshold $H_C$.
+As discussed by \citet{Albrecht2011}, this is not as simple as it sounds.
+Suppose $H_C = 100 \mathrm{~m}$, and an ice shelf with ice thicker than 100~m is advancing.
+During the next time step, ice will be transported to grid cells just downstream of the initial calving front. 
+Provided the time step is not too long, these cells will have $H < H_C$.
+If this thin ice immediately calves, then the calving front cannot advance.
+
+Glissade avoids this problem by defining a protected ring of thin ice at the margin of floating ice.
+If ice in a grid cell has $H < H_C$ but shares an edge with a cell where $H \geq H_C$, then it is protected from calving.
+It can then thicken due to transport from neighboring cells, while remaining dynamically inactive. 
+Once the ice in this cell thickens to $H \geq H_C$, it becomes dynamically active, 
+and its thin-ice neighbors become part of the protected ring.
+
+Suppose, on the other hand, that ice is thinning at the calving front. A cell might initially
+have $H \geq H_C$, with one or more protected thin-ice neighbors. If the ice in this cell 
+thins to $H < H_C$, it becomes a dynamically inactive cell in the protected ring.  Its thin-ice neighbors 
+(assuming they have no other neighbors with $H \geq H_C$) are no longer protected and are allowed to calve.
+In this way the calving front can retreat.
+
+The thickness-based calving scheme is more realistic than the simple schemes listed above, but
+still is likely to give large errors in calving-front location.
+A more accurate damage-based scheme is under development and will be included in future versions of CISM.
+In this scheme, a scalar damage parameter evolves as the ice undergoes strain, and ice calves
+when the damage in a grid cell exceeds a prescribed threshold.
+
+By default, any floating ice that meets the calving criterion (e.g., it is thin and lies outside the protected ring,
+or the bedrock topography lies below the threshold elevation) will calve on a given time step.
+A user might prefer, however, to limit the extent of calving.
+By changing the value of \texttt{calving\_domain}, the user can specify that ice calves 
+(1) only when it lies at the marine margin (i.e., it borders an ice-free ocean cell), or 
+(2) only when it is connected to the ocean through other cells that meet the calving criterion.
+In this way, cells in the interior of an ice shelf can be prevented from calving.
+
+The user can also prescribe a calving timescale. If this timescale is longer than the model time step,
+then only a fraction of the ice that meets the calving criterion will calve in a single time step.
+For example, if the model time step is 1 yr and the calving timescale is 2 yr, then half the
+ice thickness in each calving-eligible cell will calve.
+
+A related option is to remove so-called floating ice islands.  A floating island is a connected region
+where every cell is floating and thus has no basal traction.  These islands can be present in initial
+data sets or can arise occasionally during simulations, depending on the
+calving scheme.  Finding the velocity for such a region is an ill-posed problem, so it is best
+to remove floating islands as soon as they occur. This is done by first marking all the grounded ice cells,
+and then using a boundary-fill algorithm to mark every cell that is connected to a grounded cell.
+(That is, one could travel from a grounded cell to the cell in question along a path at least
+one cell wide, without leaving the ice pack.) For parallel simulations, the algorithm is repeated enough times
+to connect cells on all processors. Any floating cells remaining are ice islands that immediately calve.
+
+When CISM is coupled to a climate model, calving ice is typically routed to the ocean as a solid ice flux.
+In the absence of an explicit iceberg model, the ocean model supplies the heat needed to melt the ice.
+The ocean cools and freshens accordingly.
