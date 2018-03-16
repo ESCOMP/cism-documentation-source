@@ -17,3 +17,14 @@ Note that the extensions have been deleted from the trunk as of 6/12/14 so these
 To convert a png to eps, one can do:
 > convert foo.png foo.eps
 
+----------------
+More notes
+----------------
+
+In order to build the latex script, simply modify the Makefile according to MJH notes 
+and type at the command line:
+> make
+
+If any latex packages need to be added, do so in the file:
+common/packages.tex
+
