@@ -40,8 +40,8 @@ More experienced users may want to download directly from the repository,
 as it will make updating the code easier in the future.
 
 In either case, a Fortran90 compiler is required.  
-Other software dependencies include the \href{http://www.unidata.ucar.edu/packages/netcdf/index.html}{netCDF} library 
-(used for data I/O) and a \href{http://www.python.org}{Python} distribution 
+Other software dependencies include the \href{https://www.unidata.ucar.edu/software/netcdf/}{netCDF} library 
+(used for data I/O) and a \href{https://www.python.org}{Python} distribution 
 (used to analyze dependencies and to automatically generate parts of the code) 
 with a number of specific Python modules. Users who want to run the code in parallel will need to install MPI, 
 and users who want access to the \textit{Trilinos} solver library will need to 
@@ -59,7 +59,7 @@ If you have not done so already, clone a tagged version of CISM or download an a
 Because the build process can be fairly complicated, we describe it in detail below, 
 relying on the use of a package manager to handle many of the standard software dependencies. 
 For each step we give specific instructions for both Mac OS X using MacPorts (in red boxes) and
-Linux (in blue boxes). For the latter, we have verified that the instructions work for Ubuntu 12.10 and 14.04 LTS.
+Linux (in blue boxes). For the former the instructions work for Mac OS High Sierra. For the latter, we have verified that the instructions work for Ubuntu 12.10 and 14.04 LTS.
 For different but related systems, hopefully these instructions can be used as a guide.
 
 CISM can be installed in either a serial or parallel configuration. The parallel mode
@@ -84,7 +84,7 @@ problematic before contacting your system administrator.
 
 
 \begin{mdframed}[style=mac] % V==============MAC================V
-As mentioned above, we will take advantage of \href{http://www.macports.org/}{MacPorts}, 
+As mentioned above, we will take advantage of \href{https://www.macports.org/}{MacPorts}, 
 a software package manager for Macs. This will allow us to install most of 
 the base level software libraries needed by CISM with few complications. 
 
@@ -209,16 +209,15 @@ Intel ifort, and PGI.  In these instructions we will use GNU compilers because t
 have been extensively tested with CISM and are freely available.  Advanced users
 are welcome to use other compilers of their choosing.
 
-CISM has been tested extensively with \texttt{gfortran} versions 4.5 and 4.6.
-Newer (or older) versions may also work, although version 4.8 introduces 
-new features that may uncover issues.
+CISM has been tested extensively with \texttt{gfortran} version 6.
+Newer (or older) versions may also work.  
 
 \begin{mdframed}[style=mac] % V==============MAC================V
 Searching for gcc with \texttt{port search gcc} will return:
 
 \begin{verbatim}
-gcc44 @4.4.7 (lang) 
-    The GNU compiler collection 
+apple-gcc40 @5495 (lang) 
+    Apple's version of gcc 4.0
 ...
 \end{verbatim}
 
@@ -226,10 +225,10 @@ in addition to a lot of other information on available Macports installs related
 
 Where possible, we want to make sure that all other software we build and install 
 with Macports uses the version of GCC we choose to install. To date, we've had success 
-with GCC 4.6.3 (others may work as well but have not been tested). 
-To install GCC 4.6.3 type:
+with GCC 6.4.0 (others may work as well but have not been tested). 
+To install GCC 6.4.0 type:
 
-\texttt{sudo port install gcc46}
+\texttt{sudo port install gcc6}
 
 You will see some verbose output telling you what is happening (downloading packages, 
 expanding them, building, installing, checking, etc.). When the install is complete, you can type: 
@@ -237,7 +236,7 @@ expanding them, building, installing, checking, etc.). When the install is compl
 \texttt{port installed} 
 
 to see what packages you currently have installed. You should see 
-something like \texttt{gcc46 \@4.6.3\_3 (active)}. 
+something like \texttt{gcc6 \@6.4.0\_0 (active)}. 
 (The minor version numbers after the ``4.6'' may differ as MacPorts makes updates to the port.) 
 You will likely also see other packages that have been installed (software dependencies for GCC 
 that were automatically installed by MacPorts and/or other ports you have manually installed). 
@@ -252,19 +251,17 @@ which will return something like:
 
 \begin{verbatim}
 Available versions for gcc:
-   gcc40
-   gcc42
-   mp-gcc46 (active)
+   mp-gcc6 (active)
    none
 \end{verbatim}
 
-This confirms that GCC 4.6 is active (the \texttt{mp} indicates a Macports version). 
-It is possible that gcc46 will be listed as active when you type \texttt{port installed}, 
-but that mp-gcc46 will not be listed as active when you type \texttt{port select gcc}. 
-If mp-gcc46 is not active as shown above, then you will need to select it using:
+This confirms that GCC 6 is active (the \texttt{mp} indicates a Macports version). 
+It is possible that gcc6 will be listed as active when you type \texttt{port installed}, 
+but that mp-gcc6 will not be listed as active when you type \texttt{port select gcc}. 
+If mp-gcc6 is not active as shown above, then you will need to select it using:
 
 \begin{verbatim}
-	sudo port select --set gcc mp-gcc46
+	sudo port select --set gcc mp-gcc6
 \end{verbatim}
 
 This will ensure that any generic call to gcc, gfortran, g++, will point to the libraries just installed.
@@ -303,8 +300,8 @@ sudo port install gmake cmake
 In addition to the software installed above, you should now see something like the following when you type \texttt{port installed}:
 
 \begin{verbatim}
-  gmake @3.82_0 (active)
-  cmake @2.8.10_1 (active)
+  gmake @4.2.1_0 (active)
+  cmake @3.10.2_0 (active)
 \end{verbatim}
 \end{mdframed}              % ^==============MAC================^
 
@@ -342,19 +339,19 @@ convenient tools for viewing netCDF files.
 for manipulating and analyzing data stored in netCDF-accessible formats.
 
 \begin{mdframed}[style=mac] % V==============MAC================V
-To install NetCDF, use \texttt{sudo port install netcdf-fortran +gcc46}. 
+To install NetCDF, use \texttt{sudo port install netcdf-fortran +gcc6}. 
 Note that there are other versions of NetCDF available to install. It is important 
-to choose the one with the ``Fortran" extension. The ``gcc46" syntax specifies a port ``variant". 
+to choose the one with the ``Fortran" extension. The ``gcc6" syntax specifies a port ``variant". 
 This tell Macports that, if there is a version of the selected software 
-to install that is consistent with the GCC 4.6 compiler suite, then it should 
+to install that is consistent with the GCC 6 compiler suite, then it should 
 choose that one. Typing \texttt{port installed} should now include:
 
 \begin{verbatim}
-netcdf @4.3.2_0+dap+gcc46+netcdf4 (active)
-netcdf-fortran @4.2_12+gcc46 (active)
+netcdf @4.4.1.1_1+dap+gcc6+netcdf4 (active)
+netcdf-fortran @4.4.4_1+gcc6 (active)
 \end{verbatim}
 
-The ``dap+gcc46+netcdf4" comes along automatically. 
+The ``dap+gcc6+netcdf4" comes along automatically. 
 
 \textbf{Optional but recommended:} Tools for working with netCDF data files.
 
@@ -635,7 +632,7 @@ First, check Macports for available versions of MPICH using \texttt{port search 
 the version that is compatible with our GCC compiler suite, so we type: 
 
 \begin{verbatim}
-	sudo port install mpich-devel-gcc46 +fortran
+	sudo port install mpich-devel-gcc6 +fortran
 \end{verbatim}
 
 \noindent
@@ -648,7 +645,7 @@ To make sure this is active, type
 which should return
 
 \begin{verbatim}
-     mpich-devel-gcc46 @3.2a1_0+fortran (active)
+     mpich-devel-gcc6 @3.3a2_3+fortran (active)
 \end{verbatim}
 
 \noindent
@@ -656,7 +653,7 @@ As when installing the GCC compilers, we want to make sure any generic call to M
 can be done with the following command:
 
 \begin{verbatim}
-	sudo port select --set mpi mpich-devel-gcc46-fortran
+	sudo port select --set mpi mpich-devel-gcc6-fortran
 \end{verbatim}
 
 \end{mdframed}              % ^==============MAC================^
