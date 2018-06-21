@@ -19,21 +19,21 @@ as described in Appendix \ref{app:netcdfio}.
 The standard test cases discussed in Chapter \ref{chp:testcases} give examples
 of variables that might be specified for standard model setups.    
 
-Forcing files are new in CISM 2.0.  These are input files that are read on every 
+CISM2.1 can run with prescribed forcing files.  These are input files that are read on every 
 time step to allow time-dependent
 forcing to be applied during a simulation.  Any input fields specified in
 \texttt{*\_vars.def} (again, most commonly, \texttt{glide\_vars.def}) can be included
 in forcing files.  Forcing files should have a ``time'' field which is used to 
 assign values to each field in the file during the simulation.  Forcing is applied 
 in a piecewise constant fashion; the most recent time slice in the forcing file prior
-to the current model time is used on each time step.  (Linear interpolatation of
+to the current model time is used on each time step.  (Linear interpolation of
 forcing may be available in the future but is not yet implemented.)
 If a field is present in both an input file and a
 forcing file at the start time, the value in the forcing file will overwrite the value
 from the input file because forcing files are read after input files.
 Forcing files are processed in the same order they appear in the configuration file on each time step, 
 thus potentially overwriting previously loaded fields from other
-forcing files.  The ``dome'' test case (\texttt{tests/higher-order/dome}) includes 
+forcing files.  The ``dome'' test case (\texttt{tests/dome}) includes 
 an optional setup of how to implement time-dependent forcing.
 
 One special input field is the \texttt{kinbcmask} field, which is used to specify locations (i.e.,

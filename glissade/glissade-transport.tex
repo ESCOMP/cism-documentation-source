@@ -232,7 +232,6 @@ reconstruction is linear, $\phi_{\max}$ and $\phi_{\min}$ are
 located at cell corners.  If $\phi_{\max} > \bar{\phi}_{\max}$ or
 $ \phi_{\min} < \bar{\phi}_{\min}$, we multiply the unlimited
 gradient by $\alpha = \min(\alpha_{\max}, \alpha_{\min})$, where
-
 \begin{equation}
   \label{gliss.eq.IR_limited_gradient}
   \begin{split}
@@ -247,6 +246,7 @@ Otherwise the gradient need not be limited.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Locating departure triangles}
 \label{sc:glissade-IR-departure} 
+
 The method for locating departure triangles is discussed in detail by 
 \citet{Dukowicz2000}. The basic idea is illustrated in Figure~\ref{fig:gliss.deparr}, 
 which shows a shaded quadrilateral departure region whose contents are transported to
@@ -269,24 +269,22 @@ coordinates of vertices $b$ and $c$ relative to the cell corner
 translate the three vertices to a coordinate system centered in
 the $NW$ cell.  This translation is needed in order to integrate
 fields in the coordinate system where they have been reconstructed.
-Repeating this process for
-the north and east edges of each grid cell, we compute the
+Repeating this process for the north and east edges of each grid cell, we compute the
 vertices of all the departure triangles associated with each cell
 edge.
 
-\begin{figure}[htbp]
+
+
+%\begin{figure}[htbp]
+\begin{figure}
   \begin{center}
-    \includegraphics[width=0.5\columnwidth]{\dir/figs/deparr.eps}
+     \includegraphics[width=0.4\columnwidth]{\dir/figs/deparrTry.eps}
   \end{center}
-  \caption{In incremental remapping, conserved
-    quantities are remapped from the shaded departure region, a
-    quadrilateral formed by connecting the backward trajectories
-    from the four cell corners, to the grid cell labeled $H$.
-    The region fluxed across the north edge of cell $H$ consists
-    of a triangle ($abc$) in the $NW$ cell and a quadrilateral 
-    (two triangles, $acd$ and $ade$) in the $N$ cell.}
+  \caption{In incremental remapping, conserved quantities are remapped from the shaded departure region, a quadrilateral formed by connecting the backward trajectories from the four cell corners, to the grid cell labeled $H$. The region fluxed across the north edge of cell $H$ consists of a triangle ($abc$) in the $NW$ cell and a quadrilateral (two triangles, $acd$ and $ade$) in the $N$ cell.}
   \label{fig:gliss.deparr}
 \end{figure}
+
+
 
 Figure~\ref{fig:gliss.triangles}, reproduced from \citet{Dukowicz2000}, shows all possible
 triangles that can contribute fluxes across the north edge of a
@@ -301,16 +299,18 @@ east edge at $(0,y_b)$ relative to the northeast corner. The east cell
 triangles and selecting conditions are identical except for a
 rotation through 90 degrees.
 
+
 \begin{figure}
-  \centering
-    \includegraphics[width=0.7\columnwidth]{\dir/figs/triangles.eps}
+ % \centering
+ \begin{center}
+    \includegraphics[width=0.7\columnwidth]{\dir/figs/trianglesTry.eps}
+ \end{center}
   \caption{The 20 possible triangles that can
     contribute fluxes across the north edge of a grid cell.}
   \label{fig:gliss.triangles}
 \end{figure}
 
 
-%\newpage
 \begin{table}
 \begin{center}
 \begin{tabular}{cccc}
@@ -353,6 +353,7 @@ y_1$ if $x_1>0$, else $\tilde{y}_1 = y_a$. Similarly, $\tilde{y}_2
 = y_2$ if $x_2<0$, else $\tilde{y}_2 = y_b$.}
 \end{center}
 \end{table}
+
 
 Departure triangles across a given cell edge are computed in a local coordinate system whose origin 
 lies at the midpoint of the edge and whose vertices are at (-0.5, 0) and (0.5, 0).  

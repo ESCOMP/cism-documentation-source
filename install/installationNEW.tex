@@ -2,7 +2,7 @@
 \section{Getting and Installing CISM}
 \label{sec:getcode}
 
-\href{http://oceans11.lanl.gov/cism/}{CISM}\footnote{\texttt{http://oceans11.lanl.gov/cism/}} 
+\href{https://cism.github.io/}{CISM}\footnote{\texttt{https://cism.github.io/}} 
 is a relatively complex system of libraries and programs which build on other libraries. 
 This section documents how to download and install CISM and its prerequisites.
 Many common problems and questions can be addressed using the 
@@ -19,7 +19,7 @@ CISM is distributed as source code, and a reasonably complete build environment 
 For UNIX and LINUX based systems (including Mac), the \href{http://www.cmake.org/}{CMake} build system is used to build the model. 
 Sample build scripts for a number of standard architectures are included, as are working build scripts 
 for a number of large-scale, high-performance-computing architectures 
-(e.g., \textit{Yellowstone} (CISL), \textit{Titan} (OLCF), and \textit{Hopper} (NERSC) ). 
+(e.g., \textit{Cheyenne} (CISL), \textit{Titan} (OLCF), and \textit{Edison} (NERSC) ). 
 
 There are two ways to get the source code:
 
@@ -516,10 +516,10 @@ On a Linux platform, you should be able to build the code by doing the following
 \end{enumerate}
 \end{mdframed}                 % ^==============UBUNTU==========^
 
-When the build completes, you can check for the executable driver by typing \texttt{ls cism\_driver} from within the current build directory (here, from within the \texttt{./builds/mac-gnu} or \texttt{./builds/linux-gnu/} directory). The file \texttt{cism\_driver} is the executable you will link to when running the model, which is generally done using a symbolic link. For example, from the \texttt{./tests/higher-order/shelf/} directory, one would link to this executable using, 
+When the build completes, you can check for the executable driver by typing \texttt{ls cism\_driver} from within the current build directory (here, from within the \texttt{./builds/mac-gnu} or \texttt{./builds/linux-gnu/} directory). The file \texttt{cism\_driver} is the executable you will link to when running the model, which is generally done using a symbolic link. For example, from the \texttt{./tests/shelf/} directory, one would link to this executable using, 
 
 \begin{verbatim}
-ln -s ../../../builds/mac-gnu/cism_driver/cism_driver ./
+ln -s ../../builds/mac-gnu/cism_driver/cism_driver ./
 \end{verbatim}
 
 Chapter \ref{ch:tests} discusses running the executable for standard test cases.

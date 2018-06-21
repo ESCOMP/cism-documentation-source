@@ -356,7 +356,7 @@ Glint are as follows:
     \hline
     \multicolumn{2}{|l|}{\texttt{[Glint climate]}}\\
     \hline
-    \multicolumn{2}{|p{0.98\textwidth}|}{Glint climate configuration}\\
+    \multicolumn{2}{|p{0.98\textwidth}|}{Glint climate configuration.}\\
     \hline
     \texttt{evolve\_ice} & {\raggedright
       specify whether or not the ice sheet evolves in time: \\
@@ -399,11 +399,74 @@ Glint are as follows:
     time-stepping. (default = 1) \\
     %%%%%%%%%%%%%%
     \texttt{mbal\_accum\_time} & Mass-balance accumulation time (in years,
-    default is equal to mass-balance timestep).  See below for full explanation of Glint
+    default is equal to mass-balance or ice time step, whichever is larger).  See below for full explanation of Glint
     time-stepping. \\
     \hline
   \end{supertabular}
 \end{center}
+%
+
+
+CISM can run with climate forcings defined on a global array without being coupled to a climate model. 
+With this configuration a second configuration file relative to the global forcing needs to be provided. CISM would then 
+be called using 2 configuration files, one specific to the ice sheet model configuration properties and one relative to the 
+climate forcing properties. The configuration options specific to global forcings are as follow:
+
+%
+\begin{center}
+  \tablefirsthead{%
+    \hline
+  }
+  \begin{supertabular}{|l|p{11cm}|}
+%%%% 
+    \hline
+    \multicolumn{2}{|l|}{\texttt{[GLEX climate]}}\\
+    \hline
+    \multicolumn{2}{|p{0.98\textwidth}|}{Specifies the global climate forcing properties.}\\
+    \hline
+    \texttt{days\_in\_year} & (integer) Number of days in a year available in the forcing file (default: 365)\\
+    \texttt{total\_years}       & (integer) Length of run in years (default: 10)\\
+    \texttt{climate\_tstep}   & (integer) Climate time step in hours (default: 6)\\
+    \texttt{gcm\_smb}         & (logical) If .true., pass SMB instead of PDD (default: .false.)\\
+    \hline
+%%%% 
+    \hline
+    \multicolumn{2}{|l|}{\texttt{[GLEX precip]}}\\
+    \hline
+    \multicolumn{2}{|p{0.98\textwidth}|}{Specifies the entry of global precipitation forcing.}\\
+    \hline
+    \texttt{filename} & File name containing precipitation data (required).\\
+    \texttt{variable}  & (unit: mm/s) Name of variable to be read from the filename containing precipitation data (required).\\
+    \hline
+%%%% 
+    \hline
+    \multicolumn{2}{|l|}{\texttt{[GLEX temps]}}\\
+    \hline
+    \multicolumn{2}{|p{0.98\textwidth}|}{Specifies the entry of global temperature forcing.}\\
+    \hline
+    \texttt{filename} & File name containing precipitation data (required).\\
+    \texttt{variable}  & Name of variable to be read from the filename containing temperature data (required).\\
+    \texttt{kelvin}      & (logical) Temperature assumed to be in kelvin if .true. or in degrees C if .false. (default: true).\\
+    \hline
+%%%%
+    \hline
+    \multicolumn{2}{|l|}{\texttt{[GLEX orog]}}\\
+    \hline
+    \multicolumn{2}{|p{0.98\textwidth}|}{Specifies the entry of global orography.}\\
+    \hline
+    \texttt{filename} & File name containing orography (required).\\
+    \texttt{variable} & (unit: m) Name of variable to be read from the filename containing orography data (required).\\
+    \hline
+     \end{supertabular}
+\end{center}
+
+%
+
+When running with glint, the simulation time span is managed by the configuration entry "total\_years" in [GLEX climate] defined in the
+global forcing configuration file. Consequently, the time specific entries "tstart" and "tend" in the "[time]" entry of the model configuration file 
+do not have any impact on the simulation. A specific example on how to run Glint with global forcings is the subject of section~\ref{ug.use_glint}.
+
+
 
 \subsubsection{Glint timestepping --- an explanation}
 
@@ -431,6 +494,12 @@ Various checks are made at run-time to make sure that sensible values are select
 importantly, all relevant time-steps must divide into one another 
 appropriately. The model will (or should) stop if an un-sensible combination 
 of values is detected.
+
+
+When using global climate forcing the first time stamp in a forcing file should correspond to the 
+climate time step value entered in [GLEX climate] section of the global configuration file. The remaining entries 
+in the forcing file should have entries defined at a time interval equal to that of the climate time step as well.
+
 
 \subsubsection{Glint timestepping --- further examples}
 

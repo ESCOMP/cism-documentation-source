@@ -3,8 +3,8 @@
 \label{sc:ho-tests}
 
 The higher-order test cases are designed to test various aspects of higher-order dycores.
-By default they use the Glissade dycore with the Blatter-Pattyn approximation 
-(see Section~\ref{sc:glissade-blatter-pattyn}).
+By default they use the Glissade dycore with the Blatter-Pattyn approximation or DIVA
+(see Sections~\ref{sc:glissade-blatter-pattyn} and ~\ref{sc:DIVA}).
 As other higher-order dycores become available, they can be applied
 to these same tests. Additional test cases will be added as needed.
 
@@ -201,7 +201,7 @@ More detailed information on this test case can be found
 ``shelf-descr.pdf" document.
 
 Note that the confined shelf and circular shelf experiments are both in the 
-\texttt{tests/higher-order/shelf} directory and share some files.
+\texttt{tests/shelf} directory and share some files.
 
 \subsubsection{Provided files}
 
@@ -241,7 +241,7 @@ of 1000 m, which is grounded at a single grid point at its center. This test cas
 in 2D (i.e., in map plane view) and also confirms radial symmetry. 
 
 Note that the confined shelf and circular shelf experiments are both in the 
-\texttt{tests/higher-order/shelf} directory and share some files.
+\texttt{tests/shelf} directory and share some files.
 
 \subsubsection{Provided files}
 
@@ -629,7 +629,7 @@ resolution the test was run at (the meaning of the number is test dependent), an
 a \texttt{p}, indicating the number of processors used when running the model. This \texttt{reg\_test} directory will be
 formatted to used with LIVVkit directly. Note: everything below the dashed line will only appear on HPC systems (tests
 are immediately run on PCs).  \texttt{submit\_all\_jobs.bash} will submit all the jobs in the \texttt{jobs/} directory
-and \texttt{clean\_timing.bash} will clean out any \texttt{higher-order/*/timing/} directory such that only the timing
+and \texttt{clean\_timing.bash} will clean out any \texttt{*/timing/} directory such that only the timing
 files remain (to be used after all jobs finish).
 
 \subsubsection{Advanced usage}

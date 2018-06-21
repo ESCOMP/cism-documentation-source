@@ -20,6 +20,7 @@ To convert a png to eps, one can do:
 ----------------
 More notes
 ----------------
+GRL 2018
 
 In order to build the latex script, simply modify the Makefile according to MJH notes 
 and type at the command line:
