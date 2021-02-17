@@ -2,9 +2,19 @@
 \newcommand{\commondir}{common}
 \input{\commondir/packages.tex}
 \usepackage{color}
-\usepackage[colorlinks=true,citecolor=blue,dvipdfm]{hyperref}
+
+%WHL - commented out the next line; I think that Overleaf does not like dvipdfm.
+%\usepackage[colorlinks=true,citecolor=blue,dvipdfm]{hyperref}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=red,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
 \input{\commondir/definitions.tex}
-\special{pdf: docinfo << /Author (Stephen Price, William Lipscomb, Matthew Hoffman, Magnus Hagdorn, Ian Rutt, Tony Payne, and Felix Hebeler) /Title (CISM Documentation) >>}
+\special{pdf: docinfo << /Author (William Lipscomb, Gunter Leguy, Stephen Price, Matthew Hoffman, Magnus Hagdorn, Ian Rutt, Tony Payne, Felix Hebeler, and Joseph Kennedy) /Title (CISM Documentation) >>}
 
 
 \input{glimmer.tex}
