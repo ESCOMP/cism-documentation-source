@@ -593,34 +593,34 @@ CISM into the directory \texttt{build/cism\_driver}. BATS will then setup a set 
 
 \par
 All the files associated with each test will be output to a new directory called \texttt{reg\_test/titan-gnu}, which has a
-directory structure that mirrors CISMS test directory structure:
+directory structure that mirrors CISM's test directory structure:
 
+%WHL - Replaced some Unicode symbols that would not print
 \begin{verbatim}
  reg_test/
-    └── PLATFORM-COMPILER/
-        ├── CMakeCache.txt
-        ├── higher-order/
-        │    ├── dome/
-        │    │   ├── dome.RESO.pPRC.*
-        │    │   └── timing/
-        │    │       └── dome-t?.RESO.pPRC.*
-        │    ├── ismip-hom
-        │    │   ├── ismip-hom-a.RESO.pPRC.*
-        │    │   ├── ismip-hom-c.RESO.pPRC.*
-        │    │   └── ismip-hom-f.0100.pPRC.*
-        │    ├── shelf
-        │    │   ├── shelf-circular.RESO.pPRC.*
-        │    │   └── shelf-confined.RESO.pPRC.*
-        │    └── stream
-        │        └── stream.RESO.pPRC.*
+    |-- PLATFORM-COMPILER/
+        |-- CMakeCache.txt
+        |-- higher-order/
+        |    |--dome/
+        |    |   |-- dome.RESO.pPRC.*
+        |    |   |-- timing/dome-t?.RESO.pPRC.*
+        |    |-- ismip-hom
+        |    |   |-- ismip-hom-a.RESO.pPRC.*
+        |    |   |-- ismip-hom-c.RESO.pPRC.*
+        |    |   |-- ismip-hom-f.0100.pPRC.*
+        |    |-- shelf
+        |    |   |-- shelf-circular.RESO.pPRC.*
+        |    |   |-- shelf-confined.RESO.pPRC.*
+        |    |-- stream
+        |        |-- stream.RESO.pPRC.*
     --------------------------------------------
-        ├── Jobs/
-        │    ├── platform_job.small
-        │    ├── platform_job.small_timing_?
-        │    ├── platform_job.large
-        │    └── platform_job.large_timing_?
-        ├── submit_all_jobs.bash
-        └── clean_timing.bash
+        |-- Jobs/
+        |    |-- platform_job.small
+        |    |-- platform_job.small_timing_?
+        |    |-- platform_job.large
+        |    |-- platform_job.large_timing_?
+        |-- submit_all_jobs.bash
+        |-- clean_timing.bash
 \end{verbatim}
 
 \noindent
