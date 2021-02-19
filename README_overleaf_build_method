@@ -1,0 +1,135 @@
+Notes on building documentation for CISM using Overleaf
+ ------------------------------------------------------
+GRL and WHL February 2021
+
+This file explains how to sync and build the documentation using Overleaf. It also gives a few other options that do not require any syncing or Overleaf (see end of this file). 
+If you do not have an Overleaf account, you can sign up for one by visiting https://www.overleaf.com/
+
+WARNING
+You can synchronize an Overleaf project with a GitHub repository either by creating a new Overleaf project from an existing GitHub repository, or by creating a new GitHub repository from an existing Overleaf project. It is not possible to synchronize an existing Overleaf project with an existing Github repository. Overleaf will not push to a branch other than “Main”.
+
+In our case, we will start from an existing GitHub repository and create a new Overleaf project.
+
+
+######################
+# First things first #
+######################
+
+In order to build, the documentation expects two files containing the defined input-output variables in CISM (i.e., the variables listed in the CISM source files with names ending in “vars.def”). These files update the Appendix section of the documentation where the code variables in the are enumerated. The files need to be present or created prior to building the documentation.  
+
+In what follows, we present a step-by-step approach on setting up the workflow to create these files. The symbol “>” indicates a command to be entered at the command line. 
+
+0. Open a terminal window.
+
+1. Create a folder where you plan to check out cism-documentation-source (we will call it “Folder_documentation”):
+> mkdir Folder_documentation
+> cd Folder_documentation
+
+2. Clone a copy of both repositories, the CISM documentation source and the CISM code:
+> git clone https://github.com/ESCOMP/cism-documentation-source.git
+Note: if you already have a copy of the CISM code that you plan on using, go to step 3, otherwise:
+> git clone https://github.com/ESCOMP/CISM.git
+
+3. Check out the branch of the CISM code you plan on documenting:
+Note: This step can be skipped if you have a copy of the code somewhere else, in which case make sure you have checked out the branch you want to document. Otherwise:
+> cd cism_code
+> git checkout branch-name-to-checkout
+> cd ..
+Note: in this step, “cism_code” is the name of the CISM repository you have checked out. If you are strictly following these instructions, “cism_code” would be “CISM”.
+
+4. Generate the .tex files that will be used by the documentation to build the appendix.
+> cd cism-documentation-source
+> python generate_variable_list.py
+Note: the script “generate_variable_list.py” assumes that the folder containing the CISM code is called “CISM” and is at the same level as “cism-documentation-source”. You can modify the path for your CISM code in the python script. To do this, look for “path_to_cism_code” and fill in the appropriate path. 
+
+5. Check that two .tex files have been created correctly:
+> cd ug/
+> ls -l
+The list should return a list including “glide_varlist.tex” and “glint_varlist.tex”. You could view the files to ensure they have been written. Once you’ve convinced yourself these files are good to go:
+> cd ../
+
+Congratulations, you have accomplished the initial steps of modifying the documentation. Now you are ready for the actual writing part!
+
+
+##########################
+# Workflow with overleaf #
+##########################
+
+Some of the steps highlighted here are from Overleaf help pages:
+https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub
+
+0. Sign in to Overleaf.
+
+1. In “New Project” (the green button) -> Import from GitHub
+
+2. Select a repository to import into Overleaf, here ESCOMP/cism-documentation-source.
+Note: you might not see the option for “ESCOMP/cism-documentation-source”. If that is the case, it means your Overleaf account does not have access to this repository and you need to make an inquiry. To do so, scroll down and follow the instructions after clicking on “Can’t see what you’re looking for?”. At the end of this process, someone managing ESCOMP will get back to you about your request. 
+
+3. The documentation will build and give you a first overview of the documentation. The build can take up to a couple minutes. Right now, the documentation builds when the main document is set to “glimmer_pdf.tex”. To check this is the case, look at the “Main document” box in the “Menu” dropdown at the top left. To compile and build the documentation, press the “Recompile” green button. 
+
+4. Upload the two .tex files “glide_varlist.tex” and “glint_varlist.tex created during step 5 in the previous section. Place these files in the “ug/” folder. 
+
+5. Recompile to include these files in the documentation.
+
+6. Edit source files as desired.  Recompile periodically to check for errors. The number of minor (orange) and major (red) errors is shown in a small box to the right of the green “Recompile” button.  Please fix these errors if possible.  Do not push changes to the repository if your document generates any red errors.
+
+7. Push your changes to the repository:
+Go to “Menu” (top left of your Overleaf project) -> GitHub. 
+A window prompt should open titled “GitHub sync”. This window indicates the repository with which your overleaf project is synced. Make sure it is “ESCOMP/cism-documentation-source” and then -> Push Overleaf changes to GitHub. 
+
+
+8. Step 7 will open another prompt window titled “Push Overleaf changes to GitHub” and allows you to write a commit message (similarly to what git does after a “git commit”). Once you are done with your commit message -> push the “commit” button. Overleaf will merge your changes to the repository. 
+
+9. After merging, the window will remain open. Simply close it.
+
+10. Repeat steps 6-9 as needed. 
+
+
+##################
+# Collaborating  #
+##################
+
+If you plan to edit the documentation with others, you can share your synced overleaf project. Everyone sharing the project will be able to merge changes from the project to the repository. One caveat is that the commit message will recognize the overleaf account it is being pushed from, and not the collaborator creating the merge. For this reason, we recommend that the collaborator pushing to the repository begins the commit message with a line: “author: First and Last name”.
+
+Here is a suggested workflow:
+
+1. Identify your collaborator and decide on a “Lead”.
+Note: again, the Lead is the one who will synced their overleaf account to the repository.
+
+2. The Lead uploads the documentation to Overleaf from the repository.
+
+3. The Lead shares the Overleaf project with the collaborators using the “share” option on the top right of the overleaf project. 
+Note: The Lead will only be able to share with collaborators who have an Overleaf account. 
+
+4. Collaborate as desired on the shared project.
+
+5. When the editing is done, push the changes to the repository following the steps from the section “Workflow with overleaf”.
+Note: Again, everyone sharing the project can push to the repository, not only the Lead!
+
+
+#######################################
+# Other methods not involving syncing #
+#######################################
+
+Note: The following steps still require access to a version of the CISM code to create the variable lists in the documentation. 
+
+*************************
+A. Still using Overleaf
+*************************
+If you do not want to sync your project with the repository and master (because you would like to work on a branch of your own, or...) you can simply clone the documentation, upload the project into Overleaf, make your changes there, download your work, and push your changes to your branch.
+
+************************
+B. Not using Overleaf
+************************
+Note: When using either methods below, please DO NOT push directly to master, but instead create a pull request. Right now we would like to make sure the documentation builds correctly with Overleaf. 
+
+1. You can use other programs (e.g. bibtex, LaTex, ...) to build the documentation. To do so, simply create a branch in the repository.
+
+2. You can also use the workflow that uses the makefile. For more information on this method, look at the file “README_make_build_method”. 
+Note: The method highlighted in the file was used with commits prior to January 26th 2021. Right now, changes made in the documentation do not ensure this method builds without major errors. 
+
+
+
+
+
+
