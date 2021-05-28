@@ -28,12 +28,13 @@ in the tables below.
     \multicolumn{2}{|r|}{\emph{\small continued on next page}}\\
     \hline}
   \tablelasttail{\hline}
-  \begin{supertabular*}{\textwidth}{@{\extracolsep{\fill}}|l|p{10cm}|}
+%   \begin{supertabular*}{\textwidth}{@{\extracolsep{\fill}}|l|p{10cm}|}
+  \begin{supertabular*}{\linewidth}{@{\extracolsep{\fill}}|l|p{9cm}|}
 
 
 %%%% GRID
     \hline
-    \multicolumn{2}{|l|}{\texttt{[grid]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[grid]}}}\\
     \hline
     \multicolumn{2}{|p{0.97\textwidth}|}{Define model grid. 
 %Maybe we should make this optional and read grid specifications from input netCDF file (if present). Certainly, the input netCDF files should be checked (but presently are not) if grid specifications are compatible.
@@ -44,12 +45,17 @@ in the tables below.
     \texttt{upn} & (integer) number of nodes in $z$--direction\\
     \texttt{dew} & (real) node spacing in $x$--direction (m)\\
     \texttt{dns} & (real) node spacing in $y$--direction (m)\\
+    \texttt{nx\_block} & {\bf 0} (int) user specific block size to handle active-blocks option\\
+    \texttt{ny\_block} & {\bf 0} (int) user specific block size to handle active-blocks option\\
+
 %% global_bc
     \texttt{global\_bc} & 
         boundary conditions for the edges of the global domain \\ &
     \begin{tabular}[t]{cp{0.85\linewidth}}
       {\bf 0} & periodic \\
       1 & outflow \\
+      2 & no penetration \\
+      3 & no ice \\
     \end{tabular}\\
 %    \texttt{sigma\_file} & (string) Name of file containing $\sigma$ coordinates. Alternatively, the sigma levels may be specified using the \texttt{[sigma]} section decribed below. If no sigma coordinates are specified explicitly, they are calculated based on the value of \texttt{sigma\_builtin} \\
     \texttt{sigma} &
@@ -66,12 +72,24 @@ in the tables below.
     \end{tabular}\\
 
 
+%%%% GRID_OCN
+    \hline
+    \hline
+    \hline
+    \multicolumn{2}{|l|}{\texttt{\bf{[grid\_ocn]}}}\\
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Define ocean model grid for ocean data input.} \\
+    \hline
+    \texttt{nbasin} & (int) Number of basins \\
+    \texttt{nzocn} & (int) Number of ocean levels \\
+    \texttt{dzocn} & (real) Thickness of ocean levels \\
+
 
 %%%% SIGMA
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[sigma]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[sigma]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Define the sigma levels used in the vertical discretization (\texttt{sigma}=2 above). This is an alternative to using a separate file (specified in section \texttt{[grid]} above). If neither is used, the levels are calculated as described above.} \\
     \hline
@@ -83,21 +101,33 @@ in the tables below.
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[time]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[time]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Configure time steps and diagnostic specifications} \\
     %{\bf TODO: address / remove this next note:} Update intervals should probably become absolute values rather than related to the main time step when we introduce variable time steps. \textbf{Steve: I don't actually know what the question is here or what this note is supposed to be about.}}\\
     \hline
     \texttt{tstart} & (real) start time of the model in years\\
     \texttt{tend} & (real) end time of the model in years\\
+%% dt_input_option
+    \texttt{dt\_input\_option} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      0 & Input dt in year \\
+      1 & Input dt in steps per year  \\
+    \end{tabular}\\
     \texttt{dt} & (real) size of time step in years\\
-    \texttt{subcyc} & (integer) number of time steps to subcycle evolution within dt using a steady velocity field \\
+    \text{nsteps\_per\_year} & (int) Number of time steps per year (for dt\_input\_option=1)\\
+    \texttt{subcyc} & (int) number of time steps to subcycle evolution within dt using a steady velocity field \\
+    \text{adaptive\_cfl\_threshold} & (real) adaptively subcycle the advection when advective CFL exceeds this value\\
     \texttt{ntem} & (real) time step multiplier setting the ice temperature update interval\\
 %    \texttt{nvel} & (real) time step multiplier setting the velocity update interval\\
 %    \texttt{profile} & (integer) profile frequency (number of time steps) {\bf TODO: more useful description of what profiling is? Steve: I've never used this either.   
 %    Matt, my guess would be that Pat's profiling code is superior to this and, if we document that anywhere (do we?), we should support using that instead.}\\
 %   Matt: Disabling this for 2.0 release
-    \texttt{dt\_diag} & (real) writing diagnostic variables to log file every dt\_diag yrs\\
+
+
+    
+    \texttt{dt\_diag} & (real) writing diagnostic variables to log file every dt\_diag yrs (for dt\_input\_option=0)\\
+    \text{ndiag} & (int) writing diagnostic variables to log file every ndiag time steps (for dt\_input\_option =1)\\
     \texttt{idiag} & (int) $x$ direction index for diagnostic grid point in log file\\
     \texttt{jdiag} & (int) $y$ direction index for diagnostic grid point in log file\\
 %    \texttt{ndiag} & (int) number of time steps between diagnostics. {\bf DEPRECATED}.  Use \texttt{dt\_diag}. \textbf{Steve: Should we then remove and replace this with dt\_diag rather than using the old var name?}\\
@@ -108,7 +138,7 @@ in the tables below.
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[options]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[options]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Parameters set in this section determine how various components of the ice sheet model are treated.  Configuration number options with a $\dagger$ are specific to the higher-order dycores (e.g., Glissade). Options with a ? are working, but are currently not scientifically supported, and are therefore for use at your own risk. Options with a ! are in development and will be supported in future code releases. }\\
     \hline
@@ -145,28 +175,16 @@ in the tables below.
       0 & initial temperatures isothermal at $0^\circ$C\\
       {\bf 1} & initial column temperatures set to atmos. temperature \\
       2 & initial column temperatures linearly interpolated between atmos. temperature and pressure melting point\\
+      3 & initialize temperature with an advective-diffusive balance in each column\\
+      4 & initialize temperature from external file \\
     \end{tabular}\\
 %% flow law
     \texttt{flow\_law} &  
     \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0}  & constant (using the value of \texttt{default\_flwa)}\\
+      0  & set equal to $1\times 10^{-16} \mathrm{Pa}^{-n} \mathrm{yr}^{-1}$\\
       1 & temperature-dependent, \citet{PatersonBudd:1982} ($T=-5^\circ$C)\\
-      2 & temperature-dependent, \citet{PatersonBudd:1982} (function of variable T)\\
-    \end{tabular}\\
-%% basal water
-    \texttt{basal\_water} & 
-    \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0} & none \\
-      1 & local water balance\\
-      2? & compute the steady-state, routing-based, basal water flux and water layer thickness (NOTE: not supported for $> 1$ processor) \\
-      3 & use a constant basal water layer thickness everywhere, to enforce T=T${_{pmp}}$ everywhere \\
-      4! & ocean penetration parameterization for effective pressure from \citet{Leguy2014} \\
-    \end{tabular}\\
-%% basal mass balance
-    \texttt{basal\_mass\_balance} & 
-    \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0} & ignore basal melt rate in mass balance calculation \\
-      1 & include basal melt rate in mass balance calculation \\
+      {\bf 2} & temperature-dependent, \citet{PatersonBudd:1982} (function of variable T)\\
+      3 & Read flow\_law from file\\
     \end{tabular}\\
 %% slip coefficient
     \texttt{slip\_coeff} & 
@@ -179,22 +197,101 @@ in the tables below.
       4 & set proportional to basal melt rate\\
       5 & \texttt{tanh} function of basal water (bwat)\\
     \end{tabular}\\
-%% marine margin
-    \texttt{marine\_margin} & 
+%% basal water
+    \texttt{basal\_water} & 
     \begin{tabular}[t]{lp{0.85\linewidth}}
-      0 & ignore marine margin\\
-      {\bf 1} & set thickness to zero if floating\\
-      2 & lose fraction of ice from edge cells\\
-      3 & set thickness to zero if relaxed bedrock is below a given depth (variable ``mlimit" in glide\_types)\\
-      4 & set thickness to zero if present-day bedrock is below a given depth (variable ``mlimit" in glide\_types)\\
-      5? & Huybrechts calving scheme \\
+      {\bf 0} & none \\
+      1 & local water balance\\
+      2? & compute the steady-state, routing-based, basal water flux and water layer thickness (NOTE: not supported for $> 1$ processor) \\
+      3 & use a constant basal water layer thickness everywhere, to enforce T=T${_{pmp}}$ everywhere \\
     \end{tabular}\\
-%% vertical integration
-    \texttt{vertical\_integration} & 
-       (Glide \textit{only}) \\ &
+%% basal melt rate for floating ice
+    \texttt{bmlt\_float} & 
     \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0} & standard integration (to obtain vertical velocity profile)\\
-      1 & constrained to obey kinematic velocity at upper surface boundary\\
+      {\bf 0} & none \\
+      1 & depth-dependent basal melt rate for floating ice as specified for MISMIP+ \citep{AsayDavis2016}\\
+      2 & constant value for floating ice (with option to selectively mask out melting)\\
+      3 & depth-dependent basal melt rate for floating ice\\
+      4 & external basal melt rate for floating ice field (from input file or coupler)\\
+      5? & basal melt rate for floating ice from MISOMIP \citep{AsayDavis2016} ocean forcing with plume model\\
+      6 & basal melt rate for floating ice derived from ocean thermal forcing\\
+    \end{tabular}\\
+%% basal melt parameter for thermal forcing
+    \texttt{bmlt\_float\_thermal\_forcing\_param} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+       & used with config option bmlt\_float = 6 only\\
+      {\bf 0} & Quadratic parameterization to compute basal melting from thermal forcing \\
+      1 & ISMIP6 local quadratic parameterization to compute basal melting from thermal forcing\\
+      2 & ISMIP6 nonlocal quadratic parameterization to compute basal melting from thermal forcing\\
+      3 & ISMIP6 nonlocal quadratic parameterization with slope dependence\\
+    \end{tabular}\\
+%% basal melt magnitude for ismip6
+    \texttt{bmlt\_float\_ismip6\_magnitude} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        & used with config option bmlt\_float = 6 \\
+      0 & Lowest level of forcing (e.g., pct5)\\
+      {\bf 1} & Median level of forcing\\
+      2 & High level of forcing (e.g., pct95)\\
+    \end{tabular}\\
+%% domain for ocean data
+    \texttt{ocean\_data\_domain} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & ocean data on ocean domain only; extrapolate data to shelf cavities)\\
+      1 & ocean data available everywhere; already extrapolated to shelf cavities\\
+      2 & ocean data applied where CISM has ice-free ocean; extrapolated to shelf cavities\\
+    \end{tabular}\\
+%% enabling basal melt anomaly
+    \texttt{enable\_bmlt\_anomaly} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no anomaly applied to bmlt\_float\\
+        true & apply a prescribed anomaly to bmlt\_float\\
+    \end{tabular}\\
+%% basal mass balance
+    \texttt{basal\_mass\_balance} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      0 & ignore basal melt rate in mass balance calculation \\
+      {\bf 1} & include basal melt rate in mass balance calculation \\
+    \end{tabular}\\
+%% units for surface mass balance input
+    \texttt{smb\_input} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & SMB input in units of m/yr ice (same as acab) \\
+      1 & SMB input in units of mm/yr water equivalent \\
+    \end{tabular}\\
+%% surface mass balance input function
+    \texttt{smb\_input\_function} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & SMB(x,y); input as a function of horizontal location only \\
+      1 & SMB(x,y) + dSMB/dz(x,y) * dz; input SMB and its vertical gradient \\
+      2 & SMB(x,y,z); input SMB at multiple elevations \\
+    \end{tabular}\\    
+%% air temperature input function
+    \texttt{artm\_input\_function} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & artm(x,y); input as a function of horizontal location only \\
+      1 & artm(x,y) + dartm/dz(x,y) * dz; input air temperature and its vertical gradient \\
+      2 & artm(x,y,z); input air temperature at multiple elevations \\
+    \end{tabular}\\      
+%% nlev_smb    
+    \texttt{nlev\_smb} & (int) {\bf 1} (number of vertical levels SMB is provided\\
+%% enabling accumulation/surface mass balance anomaly
+    \texttt{enable\_acab\_anomaly} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no anomaly applied to SMB\\
+        true & apply a prescribed anomaly to SMB\\
+    \end{tabular}\\
+%% enabling air temperature anomaly
+    \texttt{enable\_artm\_anomaly} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no anomaly applied to air temperature\\
+        true & apply a prescribed anomaly to air temperature\\
+    \end{tabular}\\
+%% overwriting SMB
+    \texttt{overwrite\_acab} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf 0} & no overwrite of SMB anywhere\\
+        1 & overwrite SMB where input SMB = 0\\
+        2 & overwrite SMB where input input thickness <= threshold value\\
     \end{tabular}\\
 %% geothermal heat flux
     \texttt{gthf} &  
@@ -209,14 +306,117 @@ in the tables below.
       {\bf 0} & no isostatic adjustment \\
       1 & compute isostatic adjustment using lithosphere / asthenosphere model (see below for available options)  \\
     \end{tabular}\\
-%% topography
-    \texttt{topo\_is\_relaxed} &  
+%% marine margin
+    \texttt{marine\_margin} & 
     \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0} & relaxed topography is read from a separate input variable, \texttt{relx} \\
-      1 & first time slice of input topography is assumed to be relaxed\\
-      2 & first time slice of input topography is assumed to be in isostatic
-      equilibrium with ice thickness \\
+      0 & ignore marine margin\\
+      {\bf 1} & set thickness to zero if floating\\
+      2 & lose fraction of ice from edge cells\\
+      3 & set thickness to zero if relaxed bedrock is below a given depth (variable ``mlimit" in glide\_types)\\
+      4 & set thickness to zero if present-day bedrock is below a given depth (variable ``mlimit" in glide\_types)\\
+      5 & set thickness to zero based on grid location (field ``calving\_mask") \\
+      6 & set thickness to zero if ice at marine margin is thinner than a certain value (variable ``calving\_minthck" in glide\_types) \\
+      7 & set thickness to zero based on stress (eigencalving) criterion \\
+      8 & calve ice that is sufficiently damaged \\
+      9? & Huybrechts calving scheme \\
     \end{tabular}\\
+%% calving initialization
+    \texttt{calving\_init} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & do not calve at initialization \\
+      1 & calve at initialization \\
+    \end{tabular}\\
+%% calving domain
+    \texttt{calving\_domain} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      0 & calve only at ocean edge \\
+      {\bf 1} & calve wherever the calving criterion is met \\
+    \end{tabular}\\
+%% applying a calving mask
+    \texttt{apply\_calving\_mask} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no calving mask applied\\
+        true & apply a calving mask to prevent calving-front advance\\
+    \end{tabular}\\
+%% remove icebergs
+    \texttt{remove\_icebergs} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        false & no icebergs removal \\
+        {\bf true} & identify and remove icebergs after calving\\
+    \end{tabular}\\ &
+    \textit{Note:} these are connected regions with zero basal traction and no connection to grounded ice. It is safer to make it true, but not necessary for all applications. \\ 
+%% remove isthmuses
+    \texttt{remove\_isthmuses} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no isthmuses removal \\
+        true & identify and remove ice isthmuses after calving\\
+    \end{tabular}\\  &
+    \textit{Note:} these are narrow bridges connecting two regions of floating ice. False by default, but may need to be true for the FORCE\_RETREAT\_FLOATING\_ICE option. \\   
+%% expand the calving mask
+    \texttt{expand\_calving\_mask} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & do not expand the calving mask \\
+        true & expand the calving mask to include all ice that is floating at initialization\\
+    \end{tabular}\\  &
+    \textit{Note:} by default, this is done for a hardwired set of ISMIP6 basins, excluding large shelves \\   
+%% limit marine ice cliffs
+    \texttt{limit\_marine\_cliffs} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & marine cliffs remain unchanged \\
+        true & thin marine-based cliffs based on a thickness threshold \\
+    \end{tabular}\\  
+%% cull the calving front
+    \texttt{cull\_calving\_front} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no calving\_front culling\\
+        true & cull calving\_front cells at initialization \\
+    \end{tabular}\\  &
+    \textit{Note:} this can make the run more stable by removing long, thin peninsulas \\   
+%% adjust ice thickness input
+    \texttt{adjust\_input\_thickness} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no ice thickness adjustment \\
+        true & adjust ice thickness to maintain upper surface, instead of deriving upper surface from bed topography and ice thickness\\
+    \end{tabular}\\  
+%% smoothing of input topography
+    \texttt{smooth\_input\_topography} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no bed topography smoothing \\
+        true & apply Laplacian smoothing to the topography at initialization \\
+    \end{tabular}\\  
+%% adjust the input topography
+    \texttt{adjust\_input\_topography} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no bed topography adjustment \\
+        true & adjust the input topography in a selected region at initialization \\
+    \end{tabular}\\      
+%% read lat lon coordinates fields
+    \texttt{read\_lat\_lon} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf false} & no read of lat-lon fields \\
+        true & read lat and lon fields from the input file and write to restarts \\
+    \end{tabular}\\  
+%% mass change diagnostic       
+    \texttt{dm\_dt\_diag} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        {\bf 0} & write dmass/dt diagnostic in units of kg/s \\
+        1 & write dmass/dt diagnostic in units of Gt/yr \\
+    \end{tabular}\\  
+%% ice thickness diagnostic       
+    \texttt{diag\_minthck} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+        0 & include cells with H > 0 in global diagnostics \\
+        {\bf 1} & include cells with H > thklim in global diagnostics \\
+    \end{tabular}\\  
+%% vertical integration
+    \texttt{vertical\_integration} & 
+       (Glide \textit{only}) \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & standard integration (to obtain vertical velocity profile)\\
+      1 & constrained to obey kinematic velocity at upper surface boundary\\
+    \end{tabular}\\
+
+
 %% periodicity					%% no longer used / supported
 %    \texttt{periodic\_ew} & 
 %  {\bf TODO: Is this still used?  If so, do we need to add perdiodic\_ns?} \\&
@@ -233,6 +433,13 @@ in the tables below.
            specific fields required for restart are dependent on chosen options (add ``restart" to the 
            \texttt{variable} list in the \texttt{[CF output]} section of the \texttt{.config} file to automatically save the appropriate restart fields.)\\
     \end{tabular}\\
+%% restart velocity on extended grid
+    \texttt{restart\_extend\_velo} &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & write velocities to restart file on standard staggered mesh \\
+      1 & write uvel\_extend and vvel\_extend to restart file on extended staggered mesh (required if restart velocities are nonzero on global boundaries)\\
+    \end{tabular}\\    
+    
     \hline
     \texttt{ioparams} & (string) name of file containing netCDF I/O configuration. The main configuration file is searched for I/O related sections if no file name is given (default).  In other words, you can remove sections \texttt{CF input}, \texttt{CF output}, and \texttt{CF forcing} from the primary configuration file and place them in a separate file, the path to which is specified here.\\
 
@@ -242,27 +449,11 @@ in the tables below.
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[ho\_options]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[ho\_options]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Options set in this section determine how various components of the higher-order extensions to the ice sheet model (e.g., Glissade) are treated. Defaults are indicated in bold. These options have no effect on the shallow-ice (Glide) dycore. In this section, options with a ? are working but are currently not scientifically supported (and are therefore for use at your own risk). Options marked with a * apply only to a serial build (or a parallel build if run on 1 processor). Options marked with a ! are under development and will be supported in future versions of the code (hence, these are also for use at your own risk).}\\
     \hline
-%% which_ho_nonlinear
-    \texttt{which\_ho\_nonlinear} & 
-    \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0} & treat nonlinearity in momentum balance using Picard iteration \\
-      1? & treat nonlinearity in momentum balance using Jacobian-Free Newton-Krylov iteration (Glam only)  \\
-    \end{tabular}\\     
-%% which_ho_sparse
-    \texttt{which\_ho\_sparse} & 
-%\\ &
-    \begin{tabular}[t]{lp{0.85\linewidth}}
-      -1* & solve sparse linear system using SLAP with incomplete Cholesky preconditioned conjugate gradient method\\
-      0* & solve sparse linear system using SLAP with incomplete LU-preconditioned biconjugate gradient method\\
-      1* & solve sparse linear system using SLAP with incomplete LU-preconditioned GMRES method\\
-      2 & solve sparse linear system using preconditioned conjugate gradient method: standard algorithm (Glissade only) \\
-      {\bf 3} & solve sparse linear system using preconditioned conjugate gradient method: Chronopoulos-Gear algorithm (Glissade only)\\
-      4 & solve sparse linear system using \textit{Trilinos}, incomplete LU-preconditioned GMRES method (\textit{Trilinos}-compatible build only)\\
-    \end{tabular}\\     
+
 %% which_ho_efvs
     \texttt{which\_ho\_efvs} & 
     \begin{tabular}[t]{lp{0.85\linewidth}}
@@ -277,15 +468,22 @@ in the tables below.
       0 & calculate dissipation in temperature equation assuming SIA ice dynamics \\
       {\bf 1} & calculate dissipation in temperature equation assuming first-order ice dynamics \\
     \end{tabular}\\    
+%% which_ho_thermal_timestep
+    \texttt{which\_ho\_thermal\_timestep} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & vertical thermal solve before transport solve \\
+      1 & vertical thermal solve after transport solve \\
+      2 & vertical thermal solve split; both before and after transport solve \\
+    \end{tabular}\\    
 %% which_ho_babc
     \texttt{which\_ho\_babc} & 
         Implementation of basal boundary condition in higher-order dycore \\ &
     \begin{tabular}[t]{lp{0.85\linewidth}}
-      0 & constant value of ``beta" \\
-      1 & specify a simple pattern for ``beta" (hardcoded, mainly useful for debugging)\\
+      0 & spatially uniform value of ``beta" (low value of 10 Pa/yr by default)\\
+      1 & large value for frozen bed, lower value for bed at pressure melting point (hardcoded, mainly useful for debugging)\\
       2 & read map of yield stress (in Pa) from input field ``mintauf" to simulate sliding 
           over a plastic subglacial till (Picard-based solution) \\
-      3 & calculate ``beta" as linear (inverse) function of basal water thickness\\
+      3 & pseudo-plastic basal sliding law; can model linear, power-law or plastic behavior\\
       {\bf 4} & (virtually) no slip everywhere in domain (``beta" set to very large value)\\
       5 & read map of ``beta" from .nc input file using standard I/O \\
       6 & no slip everywhere in domain (using Dirichlet basal BC)\\
@@ -293,13 +491,81 @@ in the tables below.
           over a plastic subglacial till (Newton-based solution)\\
       8* & Spatial field of ``beta" required for ISMIP-HOM Test C (avoids interpolation error 
           associated with option 5; works for a single processor only) \\
-      9! & Weertman-style power-law accounting for effective pressure (Eq. \ref{weertmansliding2}) \\
-      10! & Coulomb friction law (Eq. \ref{CF-law}) \\
+       9 & power law \\
+      10 & Coulomb friction law using effective pressure, with flwa from lowest ice layer \\
+      11 & Coulomb friction law (Eq. \ref{CF-law}) \\
+      12 & basal stress is the minimum of Coulomb and power-law values, as in Tsai et al. (2015) \\
+      13 & Weertman-style power-law accounting for effective pressure (Eq. \ref{weertmansliding2}) \\
+      14 & simple hard-coded pattern (useful for debugging)
     \end{tabular}\\  
+%% compute_blocks
+    \texttt{compute\_blocks} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & compute on all blocks in the global domain; one task per block\\
+      1 & compute on active blocks only; one task per active block, no task for some or all inactive blocks \\
+      2 & inquire how many active blocks there are, in prep for resubmitting with option 1 \\
+    \end{tabular}\\      
+%% use_c_space_factor
+    \texttt{use\_c\_space\_factor} & 
+    Multiplying ``beta" by a 2D scalar field (used for MISMIP3d experiments \citep{Pattyn2013}) \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf false} & no multiplication by a scalar field\\
+    true & multiplication by a scalar field  \\
+    \end{tabular}\\    
+%% which_ho_beta_limit
+    \texttt{which\_ho\_beta\_limit} & 
+    Setting minimum ``beta" beneath grounded ice \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & absolute limit given by beta\_grounded\_min \\
+    1 & limit using beta\_grounded\_min, then multiplied by grounded ice fraction (f\_ground) \\
+    \end{tabular}\\
+%% which_ho_cp_inversion
+    \texttt{which\_ho\_cp\_inversion} & 
+    Basal inversion options: invert for Cp = powerlaw\_c \\ &
+    Note: Cp inversion is currently supported for which\_ho\_babc = 9 and 11 only \\&
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & no inversion \\
+    1 &   invert for basal friction parameter Cp  \\
+    2 &   apply Cp from a previous inversion \\
+    \end{tabular}\\
+%% which_ho_bmlt_inversion
+    \texttt{which\_ho\_bmlt\_inversion} & 
+       Basal inversion options: invert for bmlt\_float \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & no inversion \\
+    1 & invert for basal melt rate (bmlt\_float) \\
+    2 & apply basal melt rate from previous inversion \\
+    \end{tabular}\\
+%% which_ho_bmlt_basin_inversion
+    \texttt{which\_ho\_bmlt\_basin\_inversion} & 
+        Inversion of basin-based basal melting parameters \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & no inversion \\
+    1 & invert for basin-based melting parameters \\
+    2 & apply basin-based melting parameters from previous inversion \\
+    \end{tabular}\\
+%% which_ho_bwat
+    \texttt{which\_ho\_bwat} & 
+       Basal water depth \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} &  Set to zero everywhere. \\
+    1 &  Set to constant everywhere, to force T = Tpmp  \\
+    2 &  Local basal till model with constant drainage \\
+    \end{tabular}\\
+%% which_ho_effecpress
+    \texttt{which\_ho\_effecpress} & 
+       Effective pressure calculation for HO dyn core \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & N = overburden pressure, rhoi*g*H \\
+    1 & N is reduced where the bed is at or near the pressure melting point \\
+    2 & N is reduced where there is melting at the bed \\
+    3 & N is reduced due to connection of subglacial water to the ocean \\
+    4 & N is reduced where basal water is present \\
+    \end{tabular}\\
 %% which_ho_resid
     \texttt{which\_ho\_resid} &
-     Residual calculation method for higher-order velocity solvers (e.g., Glissade). 
-     Nonlinear iterations are halted once the residual falls below a specified value. \\ &
+        Residual calculation method for higher-order velocity solvers (e.g., Glissade). 
+        Nonlinear iterations are halted once the residual falls below a specified value. \\ &
     \begin{tabular}[t]{lp{0.85\linewidth}}
       0? & use the maximum value of the normalized velocity vector update, defined by 
       $r = \frac{|vel_{k-1} - vel_k|}{vel_k}$ \\
@@ -309,53 +575,201 @@ in the tables below.
       {\bf 3} & use the L2 norm of the system residual, defined by $r = Ax - b$ \\
       4  & use L2 norm of residual relative to rhs, $|Ax - b|/|b|$
     \end{tabular}\\  
+%% which_ho_nonlinear
+    \texttt{which\_ho\_nonlinear} & 
+       Method for solving the nonlinear iteration when solving the first-order momentum balance\\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0} & treat nonlinearity in momentum balance using Picard iteration \\
+      1? & treat nonlinearity in momentum balance using Jacobian-Free Newton-Krylov iteration (Glam only)  \\
+    \end{tabular}\\     
+%% which_ho_sparse
+    \texttt{which\_ho\_sparse} & 
+       Method for solving the sparse linear system that arises from the higher-order solver \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      -1* & solve sparse linear system using SLAP with incomplete Cholesky preconditioned conjugate gradient method\\
+      {\bf 0} & solve sparse linear system using SLAP with incomplete LU-preconditioned biconjugate gradient method\\
+      1* & solve sparse linear system using SLAP with incomplete LU-preconditioned GMRES method\\
+      2 & solve sparse linear system using preconditioned conjugate gradient method: standard algorithm (Glissade only) \\
+      3 & solve sparse linear system using preconditioned conjugate gradient method: Chronopoulos-Gear algorithm (Glissade only)\\
+      4 & solve sparse linear system using \textit{Trilinos}, incomplete LU-preconditioned GMRES method (\textit{Trilinos}-compatible build only)\\
+    \end{tabular}\\     
 %% which_ho_approx
     \texttt{which\_ho\_approx} &
-     Stokes-flow approximation to use with Glissade dycore \\ &
+       Stokes-flow approximation to use with Glissade dycore \\ &
+       Note 1: this option is not valid for other dycores \\&
+       Note 2:There are two SIA options:\\ &
+        $\cdot$ Option -1 uses module glissade\_velo\_sia to compute local SIA velocities, similar to Glide\\ &
+        $\cdot$ Option 0 uses module glissade\_velo\_higher to compute SIA velocities via an iterative solve\\&
     \begin{tabular}[t]{lp{0.85\linewidth}}
       -1 & local shallow-ice approximation, Glide-type calculation (uses glissade\_velo\_sia) \\
       0 & 3d matrix shallow-ice approximation, vertical-shear stresses only (uses glissade\_velo\_higher) \\
       1 & shallow-shelf approximation (SSA) with horizontal-plane stresses only (uses glissade\_velo\_higher; requires \texttt{which\_ho\_precond} $<=$1) \\
       {\bf 2} & Blatter-Pattyn with both vertical-shear and horizontal-plane stresses (uses glissade\_velo\_higher) \\
        3 & depth-integrated (L1L2) approximation, with both vertical shear and horizontal-plane stresses (uses glissade\_velo\_higher; requires \texttt{which\_ho\_precond} $<=$1) \\
+       4 & depth-integrated viscosity approximation based on \citet{Goldberg2011} (uses glissade\_velo\_higher)\\
     \end{tabular}\\  
 %% which_ho_precond
     \texttt{which\_ho\_precond} &
-     Preconditioner to use in the linear PCG solve of the Glissade dycore \\ &
+      Preconditioner to use in the linear PCG solve of the Glissade dycore \\ &
     \begin{tabular}[t]{lp{0.85\linewidth}}
       0 & no preconditioner \\
       1 & diagonal preconditioner \\
       {\bf 2} & physics-based (shallow-ice) preconditioner (not valid for SSA and L1L2) \\
+      2 & physics-based shallow-ice preconditioner \\
+      3 & local tridiagonal preconditioner \\
+      4 & global tridiagonal preconditioner \\
     \end{tabular}\\  
 %% which_ho_gradient
     \texttt{which\_ho\_gradient} &
-     Which spatial gradient operator to use in the Glissade dycore \\ &
+       Which spatial gradient operator to use in the Glissade dycore \\ &
     \begin{tabular}[t]{lp{0.85\linewidth}}
       {\bf 0} & centered gradient \\
-      1 & upstream gradient (damps checkerboard noise in prognostic simulations) \\
+      1 & first order upstream gradient (damps checkerboard noise in prognostic simulations) \\
+      2 & second order upstream gradient  \\
     \end{tabular}\\  
 %% which_ho_gradient_margin
     \texttt{which\_ho\_gradient\_margin} &
-     Spatial gradient operator to use in the Glissade dycore at ice sheet margins. \\ &
+      Spatial gradient operator to use in the Glissade dycore at ice sheet margins. \\ &
     \begin{tabular}[t]{lp{0.85\linewidth}}
       0 & use information from all neighboring cells, ice-covered or ice-free \\
       {\bf 1} & use information from ice-covered and/or land cells, but not ice-free ocean cells \\
       2 & use information from ice-covered cells only \\
     \end{tabular}\\  
+%% which_ho_vertical_remap
+    \texttt{which\_ho\_vertical\_remap} & 
+    Order of accuracy for vertical remapping \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} &  first-order accurate in the vertical direction\\
+    1 &   second-order accurate in the vertical direction  \\
+    \end{tabular}\\
+%% which_ho_assemble_taud
+    \texttt{which\_ho\_assemble\_taud} &
+       Finite-element assembly method for driving stress term\\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      0 & Standard finite-element calculation, which effectively applies a smoothing to driving stress \\
+      {\bf 1} &  Apply the local driving stress value at each vertex (no smoothing) \\ 
+    \end{tabular}\\  
 %% which_ho_assemble_beta
     \texttt{which\_ho\_assemble\_beta} &
-     Finite-element assembly method for basal boundary conditions that use ``beta" field \\ &
+       Finite-element assembly method for basal boundary conditions that use ``beta" field \\ &
     \begin{tabular}[t]{lp{0.85\linewidth}}
-      {\bf 0} & Standard finite-element calculation, which effectively applies a smoothing to ``beta" (and ``mintauf") \\
-      1 &  Apply the local ``beta" (or ``mintauf") value at each vertex (no smoothing) \\ 
+      0 & Standard finite-element calculation, which effectively applies a smoothing to ``beta" (and ``mintauf") \\
+      {\bf 1} &  Apply the local ``beta" (or ``mintauf") value at each vertex (no smoothing) \\ 
     \end{tabular}\\  
+%% which_ho_assemble_bfric
+    \texttt{which\_ho\_assemble\_bfric} &
+       Finite-element assembly method for basal friction heat flux conditions \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      0 & Standard finite-element calculation, summing over each quadrature points \\
+      {\bf 1} &  Apply the local ``beta"*(u$^2$ + v$^2$) (or ``mintauf"*(u$^2$ + v$^2$)) value at each vertex (no smoothing) \\ 
+    \end{tabular}\\  
+%% which_ho_assemble_lateral
+    \texttt{which\_ho\_assemble\_lateral} &
+       Finite-element assembly method for lateral stress terms \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+      {\bf 0}  & Standard finite-element calculation of H and usrf, at quadrature points \\
+      1 &  Apply the local cell-center value of H and usrf on each face (no smoothing) \\ 
+    \end{tabular}\\  
+%% which_ho_calving_front
+    \texttt{which\_ho\_calving\_front} & 
+    Use of subgrid calving front parameterization \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} &  no subgrid calving front parameterization\\
+    1 &     subgrid calving front parameterization \\
+    \end{tabular}\\
+%% which_ho_ground
+    \texttt{which\_ho\_ground} & 
+    Computation of the grounded fractions of each cell in the glissade dycore only \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & a cell is either floating or grounded (based on flotation condition) \\
+    1 & grounding line parameterization: a cell is partially floating/grounded (0 $<=$ f\_ground $<=$ 1)  \\
+    2 &  similar to option 1, but f\_ground is summed over quadrants rather than staggered cells  \\
+    \end{tabular}\\
+%% which_ho_fground_no_glp
+    \texttt{which\_ho\_fground\_no\_glp} & 
+    Indicate how to identify grounded and floating vertices when running without a GLP \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & a cell is grounded if any neighbor cell is grounded or land, otherwise it is floating \\
+    1 & the cell is grounded depending on the staggered flotation function \\
+    \end{tabular}\\
+%% which_ho_ground_bmlt
+    \texttt{which\_ho\_ground\_bmlt} & 
+    Computation of the melt (bmlt\_float) in partly grounded cells \citep{Leguy2020} \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & apply melt in floating cells only (based on floating\_mask) \\
+    1 & weigh the melt by the floating fraction of the cell if (0 $<$ f\_ground $<$ 1)  \\
+    2 & set melt (bmlt\_float) to zero in partly grounded cells (f\_ground $>$ 0)  \\
+    \end{tabular}\\
+%% which_ho_flotation_function
+    \texttt{which\_ho\_flotation\_function} & 
+    Computation of flotation function at and near vertices (glissade dycore only) \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    0 & f\_flotation = (-rhow*b/rhoi*H) = f\_pattyn ($<=$1 for grounded ice, $>$ 1 for floating ice) \citep{Pattyn2006JGR} \\
+    1 & f\_flotation = (rhoi*H)/(-rhow*b) = 1/f\_pattyn ($>=$1 for grounded ice, $<$ 1 for floating ice)   \\
+    {\bf 2} &  f\_flotation = -rhow*b - rhoi*H = ocean cavity thickness ($<=$0 for grounded ice, $>$ 0 for floating ice) \\
+    3 &  Modified version of option 2, without extrapolation to ice-free ocean \\
+    4 &  As option 3 but with standard deviation correction for bed topography\\
+    \end{tabular}\\
+%% block_inception
+    \texttt{block\_inception} & 
+    Blocking ice inception away from the main ice sheet \\ &
+    Note: if set to true, allows for code speed up: this option partitions ocean cells in a domain over which computation does not take place. Expert use only! \\&
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf false} & allowing ice inception away from ice sheet \\
+    true & not allowing ice inception away from ice sheet   \\
+    \end{tabular}\\
+%% remove_ice_caps
+    \texttt{remove\_ice\_caps} & 
+    Removing ice caps and adding them to the calving flux \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf false} & no ice caps removal \\
+    true & ice caps removal  \\
+    \end{tabular}\\    
+%% force_retreat
+    \texttt{force\_retreat} & 
+    Forcing ice retreat using ice\_fraction\_retreat\_mask \\ &
+    Note: this is one of the retreat option used in ISMIP6 \citep{Nowicki2016}\\&
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf 0} & no forced retreat \\
+    1 & forced retreat \\
+    \end{tabular}\\    
+%% which_ho_ice_age
+    \texttt{which\_ho\_ice\_age} & 
+    Computation of 3d ice age tracer \\ &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    0 & No ice age computation    \\
+    {\bf 1} & ice age computation \\
+    \end{tabular}\\    
 %% glissade_maxiter
     \texttt{glissade\_maxiter} &
     \begin{tabular}[t]{lp{0.85\linewidth}}
-	{\bf 100} & Maximum number of nonlinear (Picard) iterations in the Glissade dycore \\ 
+	{\bf 100} & maximum number of nonlinear (Picard) iterations in the Glissade dycore \\ 
     \end{tabular}\\  
-
-
+%% linear_solve_ncheck
+    \texttt{linear\_solve\_ncheck} &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+	{\bf 5} & check the linear solver for convergence every linear\_solve\_ncheck iterations \\ 
+    \end{tabular}\\  
+%% linear_maxiters
+    \texttt{linear\_maxiter} &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+	{\bf 200} & maximum number of linear iterations before quitting \\ 
+    \end{tabular}\\  
+%% linear_tolerance
+    \texttt{linear\_tolerance} &
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+	{\bf 1e-8} & error tolerance for linear solver \\ 
+    \end{tabular}\\  
+    
+% %% which_ho_babc
+%     \texttt{which\_ho\_inversion} & 
+%     Flag for basal traction inversion options \\ &
+%     \begin{tabular}[t]{lp{0.85\linewidth}}
+%     {\bf 0} &  \\
+%     1 &     \\
+%     2 &    \\
+%     \end{tabular}\\
+    
 
 % MJH: Commenting out external dycore options for 2.0 release.
 %% %%%% EXTERNAL DYCORE OPTIONS
@@ -382,24 +796,62 @@ in the tables below.
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[parameters]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[parameters]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Set values for various parameters.  Parameters with a $\dagger$ are specific to the higher-order dycores (e.g., Glissade).}\\
     \hline
-    \texttt{log\_level} & (integer) set to a value between 0, no messages, and 6, all messages are displayed to stdout. By default, messages are only logged to a file.
+    \texttt{rhoi} & (real) ice density (default = 917.0 kg~m$^{-3}$)\\
+    \texttt{rhoo} & (real) ocean density (default = 1026.0 kg~m$^{-3}$)\\
+    \texttt{grav} & (real) gravitational acceleration (default = 9.81 m~s$^{-2}$)\\
+    \texttt{shci} & (real) Specific heat capacity of ice (default = 2009.0 J~kg$^{-1}$~K$^{-1}$)\\
+    \texttt{lhci} & (real) Latent heat of melting of ice (default = 335.0 J~kg$^{-1}$)\\
+    \texttt{trpt} & (real) Triple point of water (default = 273.16 K)\\
+    \texttt{log\_level} & (int) set to a value between 0, no messages, and 6, all messages are displayed to stdout. By default, messages are only logged to a file.
     The format for this filename is ``configuration-file-name.config.log" \\
+    \texttt{thk\_gradient\_ramp} & (real) thickness scale over which gradients increase from zero to full value (default = 0.0 ); higher-order only \\
     \texttt{ice\_limit} & (real) below this limit ice is only accumulated/ablated; ice dynamics are switched on once the ice thickness is above this value. (default = 100.0 m) \\
-    \texttt{ice\_limit\_temp} $\dagger$ & (real) minimum thickness for computing vertical temperature (m). (default = 1.0 m) \\
-    \texttt{marine\_limit} & (real) all ice is assumed lost (calved) once water depths reach this value (for \texttt{marine\_margin}=3 or 4 in 
-    \texttt{[options]} above). Note, water depth is negative.  (default = -200.0 m) \\
-    \texttt{calving\_fraction} & (real) fraction of ice lost due to calving (for \texttt{marine\_margin}=2). (default = 0.8)\\
+    \texttt{ice\_limit\_temp} $\dagger$ & (real) minimum thickness for computing vertical temperature (default = 1.0 m) \\
+    \texttt{pmp\_offset} & (real) offset of initial bed temperature from pressure melting point temperature (default = 5.0 deg C) \\
+    \texttt{pmp\_threshold} & (real) bed is assumed thawed where Tbed >= pmptemp - pmp\_threshold (default = 1e-3 deg C) \\
     \texttt{geothermal} & (real) constant geothermal heat flux, positive down by convention (hence $<$ 0). (default = -0.05 W m$^{-2}$)\\
     \texttt{flow\_factor} & (real) the flow law rate factor is multiplied by this factor (default = 1.0; in previous versions of Glimmer-CISM the default value was 3.0) \\
-    \texttt{default\_flwa} & flow law parameter A to use in isothermal experiments (flow\_law set to 0).  Default value is $10^{-16}$ Pa$^{-n}$ yr$^{-1}$. This 
-    overrides any temperature dependence. \\
-    \texttt{efvs\_constant} $\dagger$ & Constant value of effective viscosity when using \texttt{which\_ho\_efvs}=0. Default value is 2336041 Pa yr, as in ISMIP-HOM Test F. \\
-%    \texttt{hydro\_time} & (real) basal hydrology time constant (default = 1000.0 yr) {\bf TODO: IS THIS STILL USED? Steve: I grepped for it in a few different dirs. The only place
-%    I saw it was in glide setup, suggesting that it is not being used right now.}\\
+    \texttt{flow\_factor\_float} & (real) flow enhancement parameter for floating ice (default = 1.0; for marine simulations a smaller value may be needed to match observed shelf speeds) \\
+    \texttt{default\_flwa} & flow law parameter A to use in isothermal experiments (flow\_law set to 0) (default value is $10^{-16}$ Pa$^{-n}$ yr$^{-1}$). This overrides any temperature dependence. \\
+    \texttt{efvs\_constant} $\dagger$ & Constant value of effective viscosity when using \texttt{which\_ho\_efvs}=0 (default value is 2336041 Pa yr, as in ISMIP-HOM Test F). \\
+    \texttt{effstrain\_min} & (real) min value of effective strain for computation of effective viscosity (default value is 1e-8 yr$^-$1; generally works well for SSA and DIVA, but a larger value (~1e-6) may be needed for BP) \\
+%    \texttt{hydro\_time} & (real) basal hydrology time constant (default = 1000.0 yr; 0 if no drainage) \\{\bf TODO: IS THIS STILL USED? Gunter: I grepped for it and the only place I saw it was in glide setup and glint-example, suggesting that it is not being used right now.}\\
+    \texttt{max\_slope} & (real) maximum surface slope allowed in Glissade dycore (default = 1.0 (unitless)); Note: It may be necessary to reduce max\_slope to ~0.1 to prevent huge velocities in regions of rough coastal topography\\
+ 
+    \hline
+    % \multicolumn{2}{|l|}{Parameters to adjust external forcing}\\
+    \multicolumn{2}{|p{0.95\textwidth}|}{Parameters to adjust external forcing}\\
+    \hline
+    \texttt{acab\_factor} & (real) adjustment factor for external acab field (default = 1.0 (unitless))\\
+    \texttt{bmlt\_float\_factor} & (real) adjustment factor for external bmlt\_float field (default = 1.0)\\
+
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Calving parameters}\\
+    % \multicolumn{2}{|l|}{Calving parameters}\\
+    \hline
+    \texttt{marine\_limit} & (real) all ice is assumed lost (calved) once water depths reach this value (for \texttt{marine\_margin}=3 or 4 in \texttt{[options]} above). Note, water depth is negative.  (default = -200.0 m) \\
+    \texttt{calving\_fraction} & (real) fraction of ice lost due to calving (for \texttt{marine\_margin}=2). (default = 0.8)\\
+    \texttt{calving\_minthck} & (real) minimum thickness of floating ice at marine edge before it calves (default = 0.0 m). If used, must be set to a nonzero value. Used with [options] marine\_margin = 6,7,8 only. \\
+    \texttt{lateral\_rate\_max} & (real) maximum lateral calving rate for damaged ice (default = 3000 m~yr$^{-1}$); used with [options] marine\_margin = 8 only.\\
+    \texttt{eigencalving\_constant} & (real) eigencalving constant per unit stress (default = 1e-2 m~yr$^{-1}$~Pa$^{-1}$); used with [options] marine\_margin = 7 only.\\
+    \texttt{eigen2\_weight} & (real) weight given to the second eigenvalue relative to the first eigenvalue of 2D horizontal stress tensor in the effective calving stress (default = 1.0 unitless) \\
+    \texttt{damage\_constant} & (real) rate of change of damage (default = 1e-7 yr$^{-1}$~Pa$^{-1}$); used with [options] marine\_margin = 8 only.\\
+    \texttt{damage\_threshold} & (real) threshold at which ice column is deemed sufficiently damaged to calve, assuming that 0 = no damage, 1 = total damage (default = 0.75); used with [options] marine\_margin = 8 only.\\
+    \texttt{taumax\_cliff} & (real) yield stress for marine-based ice cliffs. (default = 1e6 Pa)\\
+    \texttt{cliff\_timescale} & (real) time scale for limiting marine cliffs (default = 10.0 yr)\\
+    \texttt{ncull\_calving\_front} & (int) number of times to cull calving front cells at initialization (default = 0). If [options] cull\_calving\_front is True T, set to a large value to remove peninsulas.\\
+    \texttt{calving\_timescale} & (real) time scale for calving (default = 0.0 yr). If calving\_timescale = 0, then the full column calves at once. GLISSADE-only parameter\\
+    \texttt{calving\_front\_x} & (real) calve ice wherever abs(x) $>$ calving\_front\_x (default = 0.0 m). Used with [options] \texttt{marine\_margin}=5 only. This option is applied only if calving\_front\_x $>$ 0.\\
+    \texttt{calving\_front\_y} & (real) calve ice wherever abs(y) $>$ calving\_front\_y (default = 0.0 m). Used with [options] \texttt{marine\_margin}=5 only. This option is applied only if calving\_front\_y $>$ 0.\\
+
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Basal traction parameters}\\
+    % \multicolumn{2}{|l|}{Basal traction parameters}\\
+    \hline
     \texttt{basal\_tract\_const} & constant basal traction parameter. You can load a .nc file with a variable called \texttt{soft} if you want a spatially varying 
     bed softness parameter (Glissade local SIA and Glide only) \\
     \texttt{basal\_tract\_max} & max value for basal traction when using \texttt{slip\_coeff}=4. \\
@@ -412,25 +864,146 @@ in the tables below.
        (4) & $B$ maximum [ma$^{-1}$Pa$^{-1}$] \\
        (5) & multiplier for marine sediments \\
      \end{tabular}\\
-    \texttt{ho\_beta\_const} $\dagger$ & (real) spatially uniform beta used when \texttt{which\_ho\_babc} = 0. (default = 10.0 Pa yr m$^{-1}$) \\
+
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Basal friction/sliding parameters}\\
+    % \multicolumn{2}{|l|}{Basal friction/sliding parameters}\\
+    \hline     
+    \texttt{beta\_grounded\_min} & (real) minimum value of beta for grounded ice (default = 1.0 Pa yr m$^{-1}$). Scaled during initialization. GLISSADE-only parameter. \\
+    \texttt{ho\_beta\_const} $\dagger$ & (real) spatially uniform beta used when \texttt{which\_ho\_babc} = 0. (default = 1000.0 Pa yr m$^{-1}$) \\
+    \texttt{ho\_beta\_small} $\dagger$ & (real) small beta for sliding over a thawed bed when \texttt{which\_ho\_babc} = 1. (default = 1000.0 Pa yr m$^{-1}$) \\
+    \texttt{ho\_beta\_large} $\dagger$ & (real) large beta to enforce (virtually) no slip when \texttt{which\_ho\_babc} = 1. (default = 1e10 Pa yr m$^{-1}$) \\
+
     \texttt{friction\_powerlaw\_k} $\dagger$ & (real) friction coefficient $k$ used for \texttt{which\_ho\_babc} = 9 (Eq. \ref{weertmansliding2}) (default = 8.4e-9 m y$^{-1}$ Pa$^{-2}$, from \citet{Bindschadler1983} converted to CISM units) \\
     \texttt{coulomb\_c} $\dagger$ & (real) Coulomb friction coefficient (unitless), $C$,
 used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.42, from \citet{Pimentel2010a}) \\
+    \texttt{coulomb\_bump\_max\_slope} $\dagger$ & (real) maximum slope (unitless) of the dominant bedrock bumps, $m_{max}$,
+used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.5 m, from \citet{Pimentel2010a}) \\
     \texttt{coulomb\_bump\_wavelength} $\dagger$ & (real) wavelength (m) of the dominant bedrock bumps, $\lambda_{max}$,
 used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 2.0 m, from \citet{Pimentel2010a}) \\
-    \texttt{coulomb\_bump\_slope} $\dagger$ & (real) maximum slope (unitless) of the dominant bedrock bumps, $m_{max}$,
-used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.5 m, from \citet{Pimentel2010a}) \\
+    \texttt{flwa\_basal} & (real) Glen's A at the bed for Schoof (2005) Coulomb friction law (default = 1e-16 Pa$^{-n}$ yr$^{-1}$) \\ 
+    \texttt{powerlaw\_c} & (real) friction coefficient in power law (default = 1e4 Pa~m$^{-1/3}$~yr$^{1/3}$)\\
+    \texttt{powerlaw\_m} & (real) exponent in power law (default = 3 )\\
+    \texttt{beta\_powerlaw\_umax} & (real) upper limit of ice speed when evaluating powerlaw beta (default = 0 m~yr$^{-1}$). Where u $>$ umax, let u = umax when evaluating beta(u)\\
+    
+    \texttt{pseudo\_plastic\_q} & (real) exponent for pseudo-plastic law (default = 0.5 unitless). \\ & Note:
+    0 $<=$ q $<=$ 1; q = 1 =$>$ linear sliding law; q = 0 =$>$ plastic; intermediate values =$>$ powerlaw\\
+    \texttt{pseudo\_plastic\_u0} & (real) threshold velocity for pseudo-plastic law (default = 100.0 m~yr$^{-1}$)\\ 
+    \texttt{pseudo\_plastic\_phimin} & (real) min(phi) in pseudo-plastic law, for topg $<=$ pseudo\_plastic\_bedmin (default = 5.0 degrees, 0 $<$ phi $<$ 90) \\ 
+    \texttt{pseudo\_plastic\_phimax} & (real) max(phi) in pseudo-plastic law, for topg $<=$ pseudo\_plastic\_bedmin (default = 40.0 degrees, 0 $<$ phi $<$ 90) \\ 
+    \texttt{pseudo\_plastic\_bedmin} & (real) bed elevation below which phi = pseudo\_plastic\_phimin (default = -700.0 m) \\ 
+    \texttt{pseudo\_plastic\_bedmax} & (real) bed elevation above which phi = pseudo\_plastic\_phimax (default = 700.0 m) \\ 
+
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Effective pressure parameters}\\
+    % \multicolumn{2}{|l|}{Effective pressure parameters}\\
+    \hline
     \texttt{p\_ocean\_penetration} & (real) $p$-exponent in ocean penetration parameterization for (\texttt{basal\_water} = 4 (default = 0.0)\\
+    \texttt{effecpress\_delta} & (real) multiplier for effective pressure N where the bed is saturated and/or thawed (default = 0.02)\\
+    \texttt{effecpress\_bpmp\_threshold} & (real) basal temperature range over which N ramps from a small value to full overburden (default = 0.1 deg C)\\
+    \texttt{effecpress\_bmlt\_threshold} & (real) basal melting range over which N ramps from a small value to full overburden (default = 1e-3 m~yr$^{-1}$)\\
+
+    \hline
+    % \multicolumn{2}{|p{0.15\textwidth}|}{Basal water parameters}\\
+    % \multicolumn{2}{|l|}{Basal water}\\
+    \multicolumn{2}{|p{0.95\linewidth}|}{Basal water parameters}\\
+    \hline
+    \texttt{const\_bwat} & (real) constant basal water depth (default = 10.0 m)\\    
+    \texttt{bwat\_till\_max} & (real) maximum water depth in till (default = 2.0 m)\\    
+    \texttt{c\_drainage} & (real) uniform drainage rate (default = 1e-3 m~yr$^{-1}$)\\    
+    \hline    
+    \multicolumn{2}{|p{0.95\textwidth}|}{Ocean data parameters}\\
+    % \multicolumn{2}{|l|}{Ocean data parameters}\\
+    \hline
+    \texttt{gamma0} & (real) (default 0.0)\\
+    % \texttt{gamma0\_local\_pct5} & (real) coefficient for sub-shelf melt rates; local 5th percentile (default 7706.831 m a$^{-1}$) \\
+    % \texttt{gamma0\_local\_median} & (real) coefficient for sub-shelf melt rates; local median (default 11075.45 m a$^{-1}$)\\
+    % \texttt{gamma0\_local\_pct95} & (real) coefficient for sub-shelf melt rates; local 95th percentile (default 15257.20 m a$^{-1}$)\\
+    % \texttt{gamma0\_nonlocal\_pct5} & (real) coefficient for sub-shelf melt rates; nonlocal 5th percentile (default 9618.882 m a$^{-1}$) \\
+    % \texttt{gamma0\_nonlocal\_median} & (real) coefficient for sub-shelf melt rates; nonlocal median (default 14477.34 m a$^{-1}$)\\
+    % \texttt{gamma0\_nonlocal\_pct95} & (real) coefficient for sub-shelf melt rates; nonlocal 95th percentile (default 21005.34 m a$^{-1}$)\\
+    \texttt{thermal\_forcing\_anomaly} & (real) thermal forcing anomaly, applied everywhere (default 0.0 deg C)\\
+    \texttt{thermal\_forcing\_anomaly\_tstart} & (real) starting time for applying or phasing in the anomaly (default 0.0 a)\\
+    \texttt{thermal\_forcing\_anomaly\_timescale} & (real) number of years over which the anomaly is phased in linearly. If set to zero, then the full anomaly is applied immediately (default 0.0)\\
+    \texttt{thermal\_forcing\_anomaly\_basin} & (int) basin where anomaly is applied (default 0 (apply to all basins))\\
+
+    \hline    
+    \multicolumn{2}{|p{0.95\textwidth}|}{Input topography adjustment parameters}\\
+    \hline
+    \texttt{adjust\_topg\_xmin} & (real) minimum x value of the region with adjusted topography (default 0.0 m)\\
+    \texttt{adjust\_topg\_xmax} & (real) maximum x value of the region with adjusted topography (default 0.0 m)\\
+    \texttt{adjust\_topg\_ymin} & (real) minimum y value of the region with adjusted topography (default 0.0 m)\\
+    \texttt{adjust\_topg\_ymax} & (real) maximum y value of the region with adjusted topography (default 0.0 m)\\
+    \texttt{adjust\_topg\_no\_adjust} & (real) elevation beyond which there is no adjustment of topg (default 0.0 m)\\
+    \texttt{adjust\_topg\_max\_adjust} & (real) elevation beyond which there is full adjustment of topg (default 0.0 m)\\
+    \texttt{adjust\_topg\_delta} & (real) maximum elevation adjustment (default 0.0 m). Applied where topg $>$ adjust\_topg\_max\_adjust\\    
+
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Anomaly parameters}\\
+    \hline    
+    \texttt{overwrite\_acab\_value} & (real) acab value to apply in grid cells where overwrite\_acab\_mask = 1 (default 0.0 m~yr$^{-1}$ ice)\\
+    \texttt{overwrite\_acab\_minthck} & (real) overwrite acab where thck $<=$ overwrite\_acab\_minthck (default 0.0 m)\\
+    \texttt{acab\_anomaly\_timescale} & (real) number of years over which the acab/smb anomaly is phased in linearly. If set to zero, then the anomaly is applied immediately (default 0.0 yr)\\
+    \texttt{artm\_anomaly\_timescale} & (real) number of years over which the artm anomaly is phased in linearly. If set to zero, then the anomaly is applied immediately (default 0.0 yr)\\    
+    \texttt{bmlt\_anomaly\_timescale} & (real) number of years over which the bmlt\_float anomaly is phased in linearly. If set to zero, then the anomaly is applied immediately (default 0.0 yr)\\    
+    
+    \hline
+    \multicolumn{2}{|p{0.95\textwidth}|}{Basal melting parameters}\\
+    \hline
+    \texttt{bmlt\_cavity\_h0} & (real) scale for reducing melting in sub-shelf cavities (default = 0.0 m) \\& 
+    Note: this parameter similar to bmlt\_float\_h0, which is used specifically for MISMIP+ \\
+    \texttt{bmlt\_float\_omega} & (real) adjustment factor for external bmlt\_float field (default = 1.0) \\    
+    \texttt{bmlt\_float\_h0} & (real) scale for sub-shelf cavity thickness (default = 75 m) \\    
+    \texttt{bmlt\_float\_z0} & (real) scale for ice draft, relative to sea level (default = -100 m) \\    
+    \texttt{bmlt\_float\_const} & (real) constant melt rate (default = 0 m a$^{-1}$) \\  
+    \texttt{bmlt\_float\_xlim} & (real) scale for ice draft, relative to sea level (default = 0 m)\\    
+    \texttt{bmlt\_float\_depth\_meltmax} & (real) maximum melt rate at depth (default = 10 m a$^{-1}$)\\    
+    \texttt{bmlt\_float\_depth\_frzmax} & (real) maximum freezing rate near surface (default = 0 m a$^{-1}$)\\    
+    \texttt{bmlt\_float\_depth\_zmeltmax} & (real) depth below which bmlt\_float = bmlt\_float\_depth\_meltmax (default = -500 m)\\    
+    \texttt{bmlt\_float\_depth\_zmelt0} & (real) depth where bmlt\_float = 0 (default = -200 m)\\ \texttt{bmlt\_float\_depth\_zfrzmax} & (real) depth above which bmlt\_float = -bmlt\_float\_depth\_frzmax (default = -100 m)\\    
+    \texttt{bmlt\_float\_depth\_meltmin} & (real) minimum melt rate in warm ocean (default = 0 m a$^{-1}$) (only applies where the field warm\_ocean\_mask=1)\\        
+    \texttt{bmlt\_float\_depth\_zmeltmin} & (real) depth above which bmlt\_float = bmlt\_float\_depth\_meltmin (default = 0 m) (only applies where the field warm\_ocean\_mask=1)\\       
+
+    \hline    
+    \multicolumn{2}{|p{0.95\textwidth}|}{Basal inversion parameters}\\
+    \hline
+    \texttt{inversion\_thck\_flotation\_buffer} & (real) if usrf\_obs implies H near the flotation thickness, set to thck\_flotation +/- inversion\_thck\_flotation\_buffer (default = 1.0 m) \\       
+    \texttt{inversion\_thck\_threshold} & (real) removes ice thinner than this threshold (default = 0.0 m) \\
+    \texttt{powerlaw\_c\_max} & (real) maximum value of powerlaw\_c (default = 10$^5$ Pa (m a$^{-1}$)$^{(-1/3)}$ \\     
+    \texttt{powerlaw\_c\_min} & (real) minimum value of powerlaw\_c (default = 10$^2$ Pa (m a$^{-1}$)$^{(-1/3)}$ \\       
+    \texttt{inversion\_babc\_timescale} & (real) inversion timescale (default = 500.0 a);  must be $>$ 0 \\
+    \texttt{inversion\_babc\_thck\_scale} & (real) thickness inversion scale (default = 100.0 m);  must be $>$ 0  \\       
+    \texttt{inversion\_bmlt\_timescale} & (real) time scale for relaxing toward observed thickness (default = 0.0 yr) \\       
+    \texttt{inversion\_bmlt\_max\_melt} & (real) maximum melting rate allowed from inversion; ignored when set to 0 (default = 0.0 m~a$^{-1}$) \\       
+    \texttt{inversion\_bmlt\_max\_freeze} & (real) maximum freezing rate allowed from inversion; ignored when set to 0 (default = 0.0 m~a$^{-1}$) \\       
+    \texttt{inversion\_nudging\_factor\_min} & (real) minimum value of nudging factor between wean\_tstart and wean\_tend (default = 0.0 ) \\       
+    \texttt{inversion\_wean\_bmlt\_float\_tstart} & (real) starting time for weighted nudging of bmlt\_float (default = 0.0 a) \\       
+    \texttt{inversion\_wean\_bmlt\_float\_tend} & (real) end time for weighted nudging of bmlt\_float (default = 0.0 a) \\       
+    \texttt{inversion\_wean\_bmlt\_float\_timescale} & (real) time scale for weaning of bmlt\_float (default = 0.0 ) \\       
+  
+    \texttt{inversion\_dbmlt\_dtemp\_scale} & (real) scale for rate of change of bmlt w.r.t temperature (default = 10.0 m/yr/deg) \\ 
+    \texttt{inversion\_bmlt\_basin\_timescale} & (real) timescale for adjusting deltaT\_basin (default = 10.0 a) \\       
+    \texttt{inversion\_bmlt\_basin\_flotation\_threshold} & (real) threshold for counting ice as lightly floating/grounded (default = 500.0 m) \\       
+    \texttt{inversion\_bmlt\_basin\_mass\_correction} & (real) optional mass correction for a selected basin (default = 0 Gt) \\  
+    \texttt{inversion\_bmlt\_basin\_number\_mass\_correction} & (integer) ID for the basin receiving the correction (default = 0) \\     
+    
+    \hline    
+    \multicolumn{2}{|p{0.95\textwidth}|}{ISMIP-HOM parameters}\\
+    % \multicolumn{2}{|\textwidth|}{ISMIP-HOM parameters}\\
+    \hline
     \texttt{periodic\_offset\_ew}$\dagger$ & (real) vertical offset between east and west edges of the global domain. (default = 0.0 m)  (Primarily used for ISMIP-HOM and Stream test cases.) \\
     \texttt{periodic\_offset\_ns}$\dagger$ & (real) vertical offset between north and south edges of the global domain. (default = 0.0 m)  (Primarily used for ISMIP-HOM and Stream test cases.)\\
-
+    \hline    
+    % \multicolumn{2}{|p{0.95\textwidth}|}{Parameters specific to temperature calculation in the lithosphere}\\
+    % \hline
+    % \texttt{bmlt\_basin\_number\_mass\_correction} & (integer) ID for the basin receiving the correction (default = 0) \\           
 
 
 %%%% GTHF
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[GTHF]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[GTHF]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Options related to lithospheric temperature and geothermal heat calculation.  Ignored unless \texttt{gthf} = 1.}\\
     \hline
@@ -449,7 +1022,7 @@ used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.5 m, from
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[isostasy]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[isostasy]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Options related to isostasy model. Ignored unless \texttt{isostasy} = 1. Options marked with a * work only with a serial build (or a parallel build if run on 1 processor).} \\
 %    Steve: I tested these out and compared w/ older versions of the code (this was an old to-do item). As far as I know, all options ``work", but only the combinations using the local lithosphere (no flexural rigidity) work in parallel.
@@ -461,9 +1034,14 @@ used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.5 m, from
     \texttt{asthenosphere} & \begin{tabular}[t]{lp{\linewidth}}
       {\bf 0} & fluid mantle, isostatic adjustment happens instantaneously \\
       1 & relaxing mantle, mantle is approximated by a half-space \\
-    \end{tabular} \\    
+    \end{tabular} \\  
+    \texttt{whichrelaxed} & \begin{tabular}[t]{lp{\linewidth}}
+      {\bf 0} & relaxed topography is read from a separate input variable, {\bf relx} \\
+      1 &  first time slice of input topography is assumed to be relaxed\\
+      2 &  first time slice of input topography is assumed to be in isostatic equilibrium with ice thickness\\
+    \end{tabular} \\      
     \texttt{relaxed\_tau} & characteristic time constant of relaxing mantle (default: 4000.a) \\
-    \texttt{update} & lithosphere update period (default: 500.a) \\
+    \texttt{lithosphere\_period} & lithosphere update period (default: 100.a) \\
 %%%%
 %    \hline
 %    \multicolumn{2}{|l|}{\texttt{[elastic lithosphere]}}\\
@@ -478,7 +1056,7 @@ used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.5 m, from
     \hline
     \hline
     \hline
-    \multicolumn{2}{|l|}{\texttt{[projection]}}\\
+    \multicolumn{2}{|l|}{\texttt{\bf{[projection]}}}\\
     \hline
     \multicolumn{2}{|p{0.95\textwidth}|}{Specify map projection for reference. The reader is
     referred to Snyder J.P. (1987) \emph{Map Projections - a working manual.} USGS 
@@ -488,14 +1066,20 @@ used for \texttt{which\_ho\_babc} = 10 (Eq. \ref{CF-law}) (default = 0.5 m, from
     \hline
     \texttt{type} & string that specifies the projection type
     (\texttt{LAEA}, \texttt{AEA}, \texttt{LCC} or \texttt{STERE}). \\
-    \texttt{centre\_longitude} & central longitude in degrees east \\
-    \texttt{centre\_latitude} & central latitude in degrees north \\
-    \texttt{false\_easting} & false easting in meters \\
-    \texttt{false\_northing} & false northing in meters \\
+    \texttt{centre\_longitude} & (real) central longitude (default = 0.0 degrees East)\\
+    \texttt{centre\_latitude} & (real) central latitude (default = 0.0 degrees North) \\
+    \texttt{false\_easting} & (real) false easting (default = 0.0 m) \\
+    \texttt{false\_northing} & (real) false northing (default = 0 m) \\
     \texttt{standard\_parallel} & location of standard parallel(s) in degrees
     north. Up to two standard parallels may be specified (depending on the
     projection). \\
     \texttt{scale\_factor} & non-dimensional; relevant only for the stereographic projection \\
+% Compute area factor
+    \texttt{compute\_area\_factor} & 
+    \begin{tabular}[t]{lp{0.85\linewidth}}
+    {\bf false} & does not compute area distortion factors \\
+    True & compute area distortion factors  \\
+    \end{tabular}\\
 
   \end{supertabular*}
 \end{center}
